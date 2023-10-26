@@ -17,6 +17,10 @@ enum class TokenKind(val lexeme: String) {
     BANG("!"),
     AMPERSAND_AMPERSAND("&&"),
     BAR_BAR("||"),
+    ASSIGN("="),
+    EQUAL_EQUAL("=="),
+    BANG_EQUAL("!="),
+
 
     NUMBER("NUMBER"),
     IDENTIFIER("IDENTIFIER"),

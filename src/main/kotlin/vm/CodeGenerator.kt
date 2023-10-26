@@ -127,6 +127,8 @@ class CodeGenerator(private val sema: Sema) {
                     }
                 }
             }
+
+            is Assign -> TODO()
         }
     }
 

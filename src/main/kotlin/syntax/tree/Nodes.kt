@@ -12,6 +12,12 @@ data class Command(val void: Token, val identifier: Token, val body: Block) : No
 data class Block(val openingBrace: Token, val statements: List<Statement>, val closingBrace: Token) : Statement()
 
 
+sealed class Expression : Node()
+data class Binary(val lhs: Expression, val operator: Token, val rhs: Expression) : Expression()
+data class Literal(val value: Any) : Expression()
+data class Variable(val name: Token) : Expression()
+
+
 sealed class Statement : Node()
 
 data class Call(val target: Token) : Statement()
@@ -23,6 +29,7 @@ data class IfThenElse(val iF: Token, val condition: Condition, val th3n: Block, 
 
 data class While(val whi1e: Token, val condition: Condition, val body: Block) : Statement()
 
+data class Assign(val lhs: Token, val rhs: Int) : Statement()
 
 sealed class Condition : Node()
 

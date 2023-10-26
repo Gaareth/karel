@@ -32,8 +32,48 @@ fun Parser.block(): Block {
     return Block(expect(OPENING_BRACE), list0Until(CLOSING_BRACE, ::statement), accept())
 }
 
+fun Parser.expression(): Expression {
+    val expr = equality();
+
+}
+
+//fun Parser.equality(): Expression {
+//    var expr = comparison();
+//    while (current == EQUAL_EQUAL || current == BANG_EQUAL) {
+//        val op = accept();
+//        val right = comparison();
+//        expr = Binary(expr, op, right);
+//    }
+//    return expr
+//}
+//
+//fun Parser.comparison(): Expression {
+//
+//}
+
+fun Parser.primary(): Expression = when (current) {
+    NUMBER -> Literal(token.toInt(2..4095))
+    IDENTIFIER -> when(token.lexeme) {
+        "false" -> False(accept())
+        "true" -> True(accept())
+        else -> illegalStartOf("expression")
+    }
+
+    else -> illegalStartOf("expression")
+}
+
+
 fun Parser.statement(): Statement = when (current) {
-    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
+    IDENTIFIER -> {
+        val id = accept();
+        val next = token;
+        if (next.kind == ASSIGN) {
+            println("ASSSign");
+            Assign(id)
+        } else {
+            sema(Call(id.emptyParens()).semicolon())
+        }
+    }
 
     REPEAT -> Repeat(accept(), parenthesized { expect(NUMBER).toInt(2..4095) }, block())
 
@@ -48,6 +88,11 @@ fun Parser.statement(): Statement = when (current) {
             else -> token.error("else must be followed by { or if")
         }
     })
+
+//    ASSIGN -> {
+//        println(token);
+//        token.error("AAA");
+//    }
 
     VOID -> {
         val void = accept()

@@ -10,6 +10,7 @@ val BUILTIN_COMMANDS = setOf("moveForward", "turnLeft", "turnAround", "turnRight
 class Sema {
     private val commands = HashMap<String, Command>()
     private val calls = ArrayList<Call>()
+    private val globalEnvironment = Environment()
 
     fun command(name: String): Command? = commands[name]
 

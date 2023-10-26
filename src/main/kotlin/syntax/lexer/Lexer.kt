@@ -37,6 +37,8 @@ class Lexer(input: String) : LexerBase(input) {
 
             '!' -> nextVerbatim(BANG)
 
+            '=' -> nextVerbatim(ASSIGN)
+
             '&' -> {
                 if (next() != '&') error("logical and is &&")
                 nextVerbatim(AMPERSAND_AMPERSAND)
