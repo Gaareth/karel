@@ -29,13 +29,17 @@ fun Parser.command(): Command = when (current) {
 }
 
 fun Parser.block(): Block {
-    return Block(expect(OPENING_BRACE), list0Until(CLOSING_BRACE, ::statement), accept())
+    val prevEnvironment = environment;
+    environment = Environment(prevEnvironment)
+    val block = Block(expect(OPENING_BRACE), list0Until(CLOSING_BRACE, ::statement), accept())
+    environment = prevEnvironment
+    return block
 }
 
-fun Parser.expression(): Expression {
-    val expr = equality();
-
-}
+//fun Parser.expression(): Expression {
+//    val expr = equality();
+//
+//}
 
 //fun Parser.equality(): Expression {
 //    var expr = comparison();
@@ -51,29 +55,50 @@ fun Parser.expression(): Expression {
 //
 //}
 
-fun Parser.primary(): Expression = when (current) {
-    NUMBER -> Literal(token.toInt(2..4095))
-    IDENTIFIER -> when(token.lexeme) {
-        "false" -> False(accept())
-        "true" -> True(accept())
-        else -> illegalStartOf("expression")
-    }
-
-    else -> illegalStartOf("expression")
-}
+//fun Parser.primary(): Expression = when (current) {
+//    NUMBER -> Literal(token.toInt(2..4095))
+//    IDENTIFIER -> when(token.lexeme) {
+//        "false" -> False(accept())
+//        "true" -> True(accept())
+//        else -> illegalStartOf("expression")
+//    }
+//
+//    else -> illegalStartOf("expression")
+//}
 
 
 fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> {
         val id = accept();
-        val next = token;
-        if (next.kind == ASSIGN) {
+        val curr = token;
+        if (curr.kind == ASSIGN) {
+            next();
+            val value = expect(NUMBER);
             println("ASSSign");
-            Assign(id)
+
+            if (environment.assign(id.lexeme, value) == null) {
+                curr.error("Can't assign to undeclared variable '%s'".format(id.lexeme))
+            }
+            Assign(id, value.toInt(-4095..4095)).semicolon()
         } else {
             sema(Call(id.emptyParens()).semicolon())
         }
     }
+    LET -> {
+        val let = accept();
+        val id = expect(IDENTIFIER);
+        expect(ASSIGN);
+        val rhs = expect(NUMBER);
+        println(id.lexeme)
+        println(rhs.lexeme)
+
+        val value = rhs.toInt(-4095..4095);
+        val declaration = Declare(let, id, value).semicolon();
+        environment.define(id.lexeme, value)
+        declaration
+    }
+
+//    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
 
     REPEAT -> Repeat(accept(), parenthesized { expect(NUMBER).toInt(2..4095) }, block())
 

@@ -107,6 +107,25 @@ const val JUMP = 0xb000
 const val ELSE = 0xc000
 const val THEN = 0xd000
 
+const val DEF = 0xe000
+const val ASS = 0xe001
+
+
+const val ADD = 0x0000
+const val SUB = 0xf001
+const val MUL = 0xf002
+const val DIV = 0xf003
+
+const val EQ = 0xf004
+const val NEQ = 0xf005
+const val GT = 0xf006
+const val GTE = 0xf007
+const val LT = 0xf008
+const val LTE = 0xf009
+
+
+
+
 val builtinCommands: ChampMap<String, Int> = ChampMap.of(
     "moveForward", MOVE_FORWARD,
     "turnLeft", TURN_LEFT,

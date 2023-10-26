@@ -30,6 +30,7 @@ data class IfThenElse(val iF: Token, val condition: Condition, val th3n: Block, 
 data class While(val whi1e: Token, val condition: Condition, val body: Block) : Statement()
 
 data class Assign(val lhs: Token, val rhs: Int) : Statement()
+data class Declare(val let: Token, val lhs: Token, val rhs: Int) : Statement()
 
 sealed class Condition : Node()
 

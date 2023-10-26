@@ -7,6 +7,7 @@ import syntax.lexer.TokenKind
 import syntax.lexer.TokenKind.*
 
 class Parser(private val lexer: Lexer) {
+    var environment = Environment()
     private var previousEnd: Int = 0
 
     var previous: Token? = null;
@@ -30,6 +31,7 @@ class Parser(private val lexer: Lexer) {
         return current
     }
 
+    /** accepts current token, and advances **/
     fun accept(): Token {
         val result = token
         next()

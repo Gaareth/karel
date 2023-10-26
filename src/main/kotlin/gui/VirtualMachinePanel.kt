@@ -14,7 +14,7 @@ class VirtualMachinePanel : HorizontalBoxPanel() {
     init {
         add(VerticalBoxPanel(Box.createVerticalGlue(), stackTable))
         add(bytecodeTable)
-        isVisible = false
+        isVisible = true // TOOD: change
     }
 
     fun clearStack() {

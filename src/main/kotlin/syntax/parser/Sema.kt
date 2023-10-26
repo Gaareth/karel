@@ -1,19 +1,15 @@
 package syntax.parser
 
 import freditor.Levenshtein
-import syntax.tree.Call
-import syntax.tree.Command
-import syntax.tree.Program
+import syntax.tree.*
 
 val BUILTIN_COMMANDS = setOf("moveForward", "turnLeft", "turnAround", "turnRight", "pickBeeper", "dropBeeper")
 
 class Sema {
     private val commands = HashMap<String, Command>()
     private val calls = ArrayList<Call>()
-    private val globalEnvironment = Environment()
-
     fun command(name: String): Command? = commands[name]
-
+    
     operator fun invoke(command: Command): Command {
         if (commands.containsKey(command.identifier.lexeme)) {
             command.identifier.error("duplicate command ${command.identifier.lexeme}")

@@ -3,11 +3,14 @@ package syntax.lexer
 import freditor.persistent.StringedValueMap
 
 enum class TokenKind(val lexeme: String) {
+    // keywords
     VOID("void"),
     REPEAT("repeat"),
     IF("if"),
     ELSE("else"),
     WHILE("while"),
+    LET("let"),
+
 
     OPENING_PAREN("("),
     CLOSING_PAREN(")"),
@@ -17,6 +20,7 @@ enum class TokenKind(val lexeme: String) {
     BANG("!"),
     AMPERSAND_AMPERSAND("&&"),
     BAR_BAR("||"),
+
     ASSIGN("="),
     EQUAL_EQUAL("=="),
     BANG_EQUAL("!="),

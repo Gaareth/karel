@@ -40,3 +40,14 @@ enum class Bool : StackValue {
             get() = 0x008000
     }
 }
+
+
+class Num(val value: Int) : StackValue {
+    override fun toString(): String {
+        return "%4d".format(value)
+    }
+
+    override val color: Int
+        get() = 0x6400c8
+
+}
