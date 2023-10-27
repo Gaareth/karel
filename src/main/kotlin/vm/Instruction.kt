@@ -55,6 +55,21 @@ data class Instruction(val bytecode: Int, val position: Int) {
             OR -> "OR"
             XOR -> "XOR"
 
+            ADD -> "ADD"
+            SUB -> "SUB"
+            MUL -> "MUL"
+            DIV -> "DIV"
+
+            EQ -> "EQ"
+            NEQ -> "NEQ"
+            GT -> "GT"
+            GTE -> "GTE"
+            LT -> "LT"
+            LTE -> "LTE"
+
+            ASSIGN -> "ASS"
+            DEFINE -> "DEF"
+
             else -> when (category) {
                 PUSH -> when (target) {
                     0 -> "FALSE"
@@ -97,6 +112,7 @@ const val XOR = 0x000f
 
 const val NORM = 0x0000
 
+// >= 0x1000? -> category
 const val PUSH = 0x8000
 const val FALSE = PUSH + 0
 const val TRUE = PUSH + 1
@@ -107,21 +123,21 @@ const val JUMP = 0xb000
 const val ELSE = 0xc000
 const val THEN = 0xd000
 
-const val DEF = 0xe000
-const val ASS = 0xe001
+const val DEFINE = 0xe000
+const val ASSIGN = 0xe001
 
 
-const val ADD = 0x0000
-const val SUB = 0xf001
-const val MUL = 0xf002
-const val DIV = 0xf003
+const val ADD = 0x0f00
+const val SUB = 0x0f01
+const val MUL = 0x0f02
+const val DIV = 0x0f03
 
-const val EQ = 0xf004
-const val NEQ = 0xf005
-const val GT = 0xf006
-const val GTE = 0xf007
-const val LT = 0xf008
-const val LTE = 0xf009
+const val EQ = 0x0f04
+const val NEQ = 0x0f05
+const val GT = 0x0f06
+const val GTE = 0x0f07
+const val LT = 0x0f08
+const val LTE = 0x0f09
 
 
 

@@ -14,6 +14,7 @@ data class Block(val openingBrace: Token, val statements: List<Statement>, val c
 
 sealed class Expression : Node()
 data class Binary(val lhs: Expression, val operator: Token, val rhs: Expression) : Expression()
+data class Unary(val operator: Token, val operand: Expression) : Expression()
 data class Literal(val value: Any) : Expression()
 data class Variable(val name: Token) : Expression()
 
@@ -22,7 +23,7 @@ sealed class Statement : Node()
 
 data class Call(val target: Token) : Statement()
 
-data class Repeat(val repeat: Token, val times: Int, val body: Block) : Statement()
+data class Repeat(val repeat: Token, val expr: Expression, val body: Block) : Statement()
 
 // e1se is a Statement? instead of a Block? in order to support else-if (see Parser.statement)
 data class IfThenElse(val iF: Token, val condition: Condition, val th3n: Block, val e1se: Statement?) : Statement()

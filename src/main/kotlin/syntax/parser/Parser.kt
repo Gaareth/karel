@@ -44,6 +44,16 @@ class Parser(private val lexer: Lexer) {
         return accept()
     }
 
+    fun match(vararg tokens: TokenKind): Boolean {
+        for (token in tokens) {
+            if (token == current) {
+                next()
+                return  true
+            }
+        }
+        return false
+    }
+
     fun <T> T.emptyParens(): T {
         expect(OPENING_PAREN)
         expect(CLOSING_PAREN)

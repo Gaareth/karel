@@ -36,36 +36,6 @@ fun Parser.block(): Block {
     return block
 }
 
-//fun Parser.expression(): Expression {
-//    val expr = equality();
-//
-//}
-
-//fun Parser.equality(): Expression {
-//    var expr = comparison();
-//    while (current == EQUAL_EQUAL || current == BANG_EQUAL) {
-//        val op = accept();
-//        val right = comparison();
-//        expr = Binary(expr, op, right);
-//    }
-//    return expr
-//}
-//
-//fun Parser.comparison(): Expression {
-//
-//}
-
-//fun Parser.primary(): Expression = when (current) {
-//    NUMBER -> Literal(token.toInt(2..4095))
-//    IDENTIFIER -> when(token.lexeme) {
-//        "false" -> False(accept())
-//        "true" -> True(accept())
-//        else -> illegalStartOf("expression")
-//    }
-//
-//    else -> illegalStartOf("expression")
-//}
-
 
 fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> {
@@ -84,6 +54,7 @@ fun Parser.statement(): Statement = when (current) {
             sema(Call(id.emptyParens()).semicolon())
         }
     }
+
     LET -> {
         val let = accept();
         val id = expect(IDENTIFIER);
@@ -100,7 +71,7 @@ fun Parser.statement(): Statement = when (current) {
 
 //    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
 
-    REPEAT -> Repeat(accept(), parenthesized { expect(NUMBER).toInt(2..4095) }, block())
+    REPEAT -> Repeat(accept(), parenthesized(::expression), block())
 
     WHILE -> While(accept(), parenthesized(::disjunction), block())
 

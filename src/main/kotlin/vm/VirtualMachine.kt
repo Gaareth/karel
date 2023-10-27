@@ -14,6 +14,9 @@ const val TIMEOUT = 1_000_000_000L
 // from truth values and loop counters on the stack.
 const val ENTRY_POINT = 256
 
+// 0x8000 & 0xf000
+const val MAX_VALUE = 4096;
+
 class VirtualMachine(
     private val program: List<Instruction>,
     private val atomicWorld: AtomicReference<World>,
