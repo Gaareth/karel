@@ -36,8 +36,31 @@ class Lexer(input: String) : LexerBase(input) {
             '}' -> nextVerbatim(CLOSING_BRACE)
 
             '!' -> nextVerbatim(BANG)
+            '+' -> nextVerbatim(PLUS)
+            '-' -> nextVerbatim(MINUS)
+            '*' -> nextVerbatim(STAR)
+            //TODO slash?
 
-            '=' -> nextVerbatim(ASSIGN)
+            '=' -> {
+                if (next() == '=')
+                    nextVerbatim(EQUAL_EQUAL)
+                else
+                    nextVerbatim(ASSIGN)
+            }
+
+            '<' -> {
+                if (next() == '=')
+                    nextVerbatim(LESS_EQUAL)
+                else
+                    nextVerbatim(LESS)
+            }
+
+            '>' -> {
+                if (next() == '=')
+                    nextVerbatim(GREATER_EQUAL)
+                else
+                    nextVerbatim(GREATER)
+            }
 
             '&' -> {
                 if (next() != '&') error("logical and is &&")
@@ -82,10 +105,25 @@ class Lexer(input: String) : LexerBase(input) {
     }
 
     private tailrec fun number(): Token = when (next()) {
+        '.' -> {
+//            if (isDigit(next())) {
+//                number()
+//            } else {
+//                error("Missing digit after '.'")
+//            }
+            error("Floating point number are (currently?) not supported")
+        }
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> number()
 
         else -> token(NUMBER)
     }
+
+//    private fun isDigit(c: Char): Boolean {
+//        return when (c) {
+//            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> true
+//            else -> false
+//        }
+//    }
 
     private tailrec fun identifierOrKeyword(): Token = when (next()) {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',

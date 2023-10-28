@@ -232,7 +232,7 @@ class ParserNegativeTest {
     @Test
     fun zeroRepetitions() {
         assertDiagnostic(
-            "0 out of range", """
+            "Repeating 1 ", """
         void main() {
             repeat (0) {
                 moveForward();
@@ -245,7 +245,7 @@ class ParserNegativeTest {
     @Test
     fun oneRepetition() {
         assertDiagnostic(
-            "1 out of range", """
+            "Repeating 1", """
         void main() {
             repeat (1) {
                 moveForward();
@@ -363,6 +363,19 @@ class ParserNegativeTest {
             "missing (", """
         void main() {
             while (frontIsClear) {
+                moveForward();
+            }
+        }
+        """
+        )
+    }
+
+    @Test
+    fun numberNotaCondition() {
+        assertDiagnostic(
+            "number", """
+        void main() {
+            if (2) {
                 moveForward();
             }
         }

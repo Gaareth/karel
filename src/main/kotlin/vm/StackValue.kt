@@ -13,10 +13,26 @@ class ReturnAddress(val value: Int) : StackValue {
         get() = 0x808080
 }
 
-class LoopCounter(val value: Int) : StackValue {
+class Num(val value: Int) : StackValue {
     override fun toString(): String {
         return "%4d".format(value)
     }
+
+    operator fun plus(num: Num): Num {
+        return Num(this.value + num.value)
+    }
+
+    operator fun minus(num: Num): Num {
+        return Num(this.value - num.value)
+    }
+
+    operator fun times(num: Num): Num {
+        return Num(this.value * num.value)
+    }
+
+//    operator fun div(num: Num): Num {
+//        return Num(this.value / num.value)
+//    }
 
     override val color: Int
         get() = 0x6400c8
@@ -39,15 +55,4 @@ enum class Bool : StackValue {
         override val color: Int
             get() = 0x008000
     }
-}
-
-
-class Num(val value: Int) : StackValue {
-    override fun toString(): String {
-        return "%4d".format(value)
-    }
-
-    override val color: Int
-        get() = 0x6400c8
-
 }

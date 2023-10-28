@@ -1,6 +1,8 @@
 package syntax.lexer
 
 import freditor.persistent.StringedValueMap
+import java.util.*
+
 
 enum class TokenKind(val lexeme: String) {
     // keywords
@@ -22,6 +24,7 @@ enum class TokenKind(val lexeme: String) {
     BAR_BAR("||"),
 
     ASSIGN("="),
+
     EQUAL_EQUAL("=="),
     BANG_EQUAL("!="),
     GREATER_EQUAL(">="),
@@ -43,6 +46,7 @@ enum class TokenKind(val lexeme: String) {
 
     val isKeyword: Boolean
         get() = lexeme.first().isLowerCase()
+
 }
 
 val keywords: StringedValueMap<TokenKind> = TokenKind.values().filter(TokenKind::isKeyword)

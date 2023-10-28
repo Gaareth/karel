@@ -1,6 +1,8 @@
 package syntax.tree
 
 import syntax.lexer.Token
+import syntax.lexer.TokenKind
+import kotlin.Number
 
 sealed class Node
 
@@ -15,7 +17,11 @@ data class Block(val openingBrace: Token, val statements: List<Statement>, val c
 sealed class Expression : Node()
 data class Binary(val lhs: Expression, val operator: Token, val rhs: Expression) : Expression()
 data class Unary(val operator: Token, val operand: Expression) : Expression()
-data class Literal(val value: Any) : Expression()
+
+data class Number(val value: Number , val token: Token) : Expression()
+
+
+//data class Literal(val value: Any, val token: Token) : Expression()
 data class Variable(val name: Token) : Expression()
 
 
@@ -30,10 +36,16 @@ data class IfThenElse(val iF: Token, val condition: Condition, val th3n: Block, 
 
 data class While(val whi1e: Token, val condition: Condition, val body: Block) : Statement()
 
-data class Assign(val lhs: Token, val rhs: Int) : Statement()
-data class Declare(val let: Token, val lhs: Token, val rhs: Int) : Statement()
+data class Assign(val lhs: Token, val rhs: Expression) : Statement()
+data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statement()
+
+
 
 sealed class Condition : Node()
+
+data class BinaryCondition(val lhs: Condition, val operator: Token, val rhs: Condition) : Condition()
+data class NumberCondition(val value: Number , val token: Token) : Condition()
+
 
 data class False(val fa1se: Token) : Condition()
 

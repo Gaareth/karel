@@ -1,8 +1,11 @@
 package vm
 
+import common.Diagnostic
 import syntax.lexer.Token
+import syntax.lexer.TokenKind
 import syntax.parser.Sema
 import syntax.tree.*
+import syntax.tree.Number
 
 typealias CommandNameId = Int
 typealias Address = Int
@@ -10,6 +13,7 @@ typealias Address = Int
 class CodeGenerator(private val sema: Sema) {
 
     private val program: MutableList<Instruction> = createInstructionBuffer()
+    private var variableIds = HashMap<String, Int>();
 
     private val pc: Int
         get() = program.size
@@ -23,6 +27,11 @@ class CodeGenerator(private val sema: Sema) {
 
     private fun generateInstruction(bytecode: Int, token: Token) {
         program.add(Instruction(bytecode, token.start))
+    }
+
+    private fun generatePushInstruction(value: Int, token: Token) {
+        // 0 and 1 are reserved for true and false
+        program.add(Instruction(PUSH + value + 2, token.start))
     }
 
     private val id = IdentityGenerator()
@@ -109,7 +118,8 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Repeat -> {
-                generateInstruction(PUSH + times, repeat)
+                expr.generate();
+                //TODO: inspect type? of expr to be a number?
                 val back = pc
                 body.generate()
                 generateInstruction(LOOP + back, body.closingBrace)
@@ -128,8 +138,15 @@ class CodeGenerator(private val sema: Sema) {
                 }
             }
 
-            is Assign -> TODO()
-            is Declare -> TODO()
+            is Assign -> {
+                rhs.generate()
+                generateInstruction(STORE + variableIds[lhs.lexeme]!!, lhs)
+            }
+            is Declare -> {
+                rhs.generate()
+                variableIds[lhs.lexeme] = variableIds.size + 1
+                generateInstruction(STORE + variableIds[lhs.lexeme]!!, let)
+            }
         }
     }
 
@@ -163,6 +180,67 @@ class CodeGenerator(private val sema: Sema) {
                 p.generate()
                 q.generate()
                 generateInstruction(OR, or)
+            }
+
+            is BinaryCondition -> {
+                lhs.generate()
+                rhs.generate()
+                when (operator.kind) {
+                    TokenKind.EQUAL_EQUAL -> generateInstruction(EQ, operator)
+                    TokenKind.BANG_EQUAL -> generateInstruction(NEG, operator)
+                    TokenKind.GREATER_EQUAL -> generateInstruction(GTE, operator)
+                    TokenKind.LESS_EQUAL -> generateInstruction(LTE, operator)
+                    TokenKind.GREATER -> generateInstruction(GT, operator)
+                    TokenKind.LESS -> generateInstruction(LT, operator)
+                    else -> throw Diagnostic(operator.start, "Invalid binary comparison operator")
+                }
+            }
+
+            is NumberCondition -> {
+                generatePushInstruction(value.toInt(), token)
+            }
+        }
+    }
+
+    private fun Expression.generate() {
+        when (this) {
+            is Variable -> {
+                generateInstruction(LOAD + variableIds[name.lexeme]!!, name)
+            }
+            is Number -> {
+                generatePushInstruction(value.toInt(), token)
+            }
+
+            is Binary -> {
+                // reverse order for subtracting
+                rhs.generate()
+                lhs.generate()
+                when (operator.kind) {
+                    TokenKind.PLUS -> generateInstruction(ADD, operator)
+                    TokenKind.MINUS -> generateInstruction(SUB, operator)
+                    TokenKind.STAR -> generateInstruction(MUL, operator)
+                    TokenKind.SLASH -> TODO("Requires floating point support")
+                    TokenKind.EQUAL_EQUAL -> generateInstruction(EQ, operator)
+                    TokenKind.BANG_EQUAL -> generateInstruction(NEQ, operator)
+                    TokenKind.GREATER_EQUAL -> generateInstruction(GTE, operator)
+                    TokenKind.LESS_EQUAL -> generateInstruction(LTE, operator)
+                    TokenKind.GREATER -> generateInstruction(GT, operator)
+                    TokenKind.LESS -> generateInstruction(LT, operator)
+
+                    // should not happen: TODO: implement some sort of interface, enum, ...?
+                    else -> throw Diagnostic(operator.start, "Invalid binary operator")
+                }
+            }
+
+            is Unary -> {
+                when (operator.kind) {
+                    TokenKind.MINUS -> {
+                        operand.generate()
+                        generateInstruction(NEG, operator)
+                    }
+
+                    else -> TODO()
+                }
             }
         }
     }

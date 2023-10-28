@@ -49,7 +49,7 @@ fun Parser.statement(): Statement = when (current) {
             if (environment.assign(id.lexeme, value) == null) {
                 curr.error("Can't assign to undeclared variable '%s'".format(id.lexeme))
             }
-            Assign(id, value.toInt(-4095..4095)).semicolon()
+            Assign(id, expression()).semicolon()
         } else {
             sema(Call(id.emptyParens()).semicolon())
         }
@@ -59,23 +59,21 @@ fun Parser.statement(): Statement = when (current) {
         val let = accept();
         val id = expect(IDENTIFIER);
         expect(ASSIGN);
-        val rhs = expect(NUMBER);
+        val rhs = expression()
         println(id.lexeme)
-        println(rhs.lexeme)
-
-        val value = rhs.toInt(-4095..4095);
-        val declaration = Declare(let, id, value).semicolon();
-        environment.define(id.lexeme, value)
+        println(rhs.toString())
+        val declaration = Declare(let, id, rhs).semicolon();
+        environment.define(id.lexeme, rhs)
         declaration
     }
 
 //    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
 
-    REPEAT -> Repeat(accept(), parenthesized(::expression), block())
+    REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())
 
     WHILE -> While(accept(), parenthesized(::disjunction), block())
 
-    IF -> IfThenElse(accept(), parenthesized(::disjunction), block(), optional(ELSE) {
+    IF -> IfThenElse(accept(), parenthesized(::condition), block(), optional(ELSE) {
         when (current) {
             OPENING_BRACE -> block()
 

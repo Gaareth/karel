@@ -6,6 +6,7 @@ data class Instruction(val bytecode: Int, val position: Int) {
 
     val category: Int
         get() = bytecode.and(0xf000)
+    // float support?: bytecode.toBits().and(0xf000.toFloat().toBits())
 
     val target: Int
         get() = bytecode.and(0x0fff)
@@ -67,14 +68,11 @@ data class Instruction(val bytecode: Int, val position: Int) {
             LT -> "LT"
             LTE -> "LTE"
 
-            ASSIGN -> "ASS"
-            DEFINE -> "DEF"
-
             else -> when (category) {
                 PUSH -> when (target) {
                     0 -> "FALSE"
                     1 -> "TRUE"
-                    else -> "PUSH %03x".format(target)
+                    else -> "PUSH %03x".format(target - 2)
                 }
 
                 LOOP -> "LOOP %03x".format(target)
@@ -83,6 +81,9 @@ data class Instruction(val bytecode: Int, val position: Int) {
                 JUMP -> "JUMP %03x".format(target)
                 ELSE -> "ELSE %03x".format(target)
                 THEN -> "THEN %03x".format(target)
+
+                LOAD ->  "LOAD %03x".format(target)
+                STORE -> "STORE %03x".format(target)
 
                 else -> throw IllegalBytecode(bytecode)
             }
@@ -123,9 +124,8 @@ const val JUMP = 0xb000
 const val ELSE = 0xc000
 const val THEN = 0xd000
 
-const val DEFINE = 0xe000
-const val ASSIGN = 0xe001
-
+const val STORE = 0xe000
+const val LOAD = 0xf000
 
 const val ADD = 0x0f00
 const val SUB = 0x0f01
@@ -139,6 +139,7 @@ const val GTE = 0x0f07
 const val LT = 0x0f08
 const val LTE = 0x0f09
 
+const val NEG = 0x0f0a
 
 
 

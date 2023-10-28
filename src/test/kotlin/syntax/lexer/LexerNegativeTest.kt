@@ -39,4 +39,10 @@ class LexerNegativeTest {
     fun unclosedMultiLineComment() {
         assertDiagnostic(messageSubstring = "multi-line comment", input = "/*")
     }
+
+//    @Test
+//    fun trailingFloatingPoint() {
+//        assertDiagnostic(messageSubstring = ".", input = "0.")
+//    }
+
 }

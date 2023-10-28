@@ -22,6 +22,9 @@ object BytecodeFlexer : freditor.Flexer() {
             "BEEP", "HEAD", "LCLR", "FCLR", "RCLR",
             "NOT", "AND", "OR", "XOR",
             "PUSH", "FALSE", "TRUE", "LOOP", "CALL", "JUMP", "ELSE", "THEN",
+            "ADD", "SUB", "MUL", "DIV",
+            "EQ", "NEQ", "GTE", "LTE", "GT", "LT",
+            "NEG"
         )
         .setDefault(ERROR)
 
@@ -36,7 +39,8 @@ object BytecodeFlexer : freditor.Flexer() {
         .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
         .put(START.read("@", "CODE", "MNEMONIC"), 0x808080)
         .put(
-            START.read("BEEP", "HEAD", "LCLR", "FCLR", "RCLR", "NOT", "AND", "OR", "XOR", "PUSH", "FALSE", "TRUE"),
+            START.read("BEEP", "HEAD", "LCLR", "FCLR", "RCLR", "NOT", "AND", "OR", "XOR", "PUSH", "FALSE", "TRUE",
+                "ADD", "SUB", "MUL", "DIV", "EQ", "NEQ", "GTE", "LTE", "GT", "LT", "NEG"),
             0x000080
         )
         .put(START.read("RET", "LOOP", "CALL", "JUMP", "ELSE", "THEN"), 0x400000)

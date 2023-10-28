@@ -47,7 +47,6 @@ class Parser(private val lexer: Lexer) {
     fun match(vararg tokens: TokenKind): Boolean {
         for (token in tokens) {
             if (token == current) {
-                next()
                 return  true
             }
         }

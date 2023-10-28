@@ -108,6 +108,14 @@ class LexerTest {
         assertNumber("1234567890")
     }
 
+//    @Test
+//    fun floats() {
+//        lexer = Lexer("10.0 1.234 0.41")
+//        assertNumber("10.0")
+//        assertNumber("1.234")
+//        assertNumber("0.41")
+//    }
+
     @Test
     fun separators() {
         lexer = Lexer("();{}")
@@ -120,11 +128,31 @@ class LexerTest {
 
     @Test
     fun operators() {
-        lexer = Lexer("!&&||")
+        lexer = Lexer("!&&||+-*")
         assertToken(BANG)
         assertToken(AMPERSAND_AMPERSAND)
         assertToken(BAR_BAR)
+        assertToken(PLUS)
+        assertToken(MINUS)
+        assertToken(STAR)
     }
+
+     @Test
+    fun cpmOperators() {
+        lexer = Lexer("== <= >= < >")
+
+        assertToken(EQUAL_EQUAL)
+        assertToken(LESS_EQUAL)
+        assertToken(GREATER_EQUAL)
+        assertToken(LESS)
+        assertToken(GREATER)
+    }
+
+    // TODO
+//    @Test
+//    fun divOrComment() {
+//
+//    }
 
     @Test
     fun identifiers() {
@@ -144,12 +172,13 @@ class LexerTest {
 
     @Test
     fun keywords() {
-        lexer = Lexer("if else repeat void while")
+        lexer = Lexer("if else repeat void while let")
 
         assertToken(IF)
         assertToken(ELSE)
         assertToken(REPEAT)
         assertToken(VOID)
         assertToken(WHILE)
+        assertToken(LET)
     }
 }

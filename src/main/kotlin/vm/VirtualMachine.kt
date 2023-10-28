@@ -3,6 +3,7 @@ package vm
 import common.Stack
 import common.push
 import logic.World
+import syntax.parser.Environment
 import java.util.concurrent.atomic.AtomicReference
 
 // If "step over" or "step return" do not finish within 1 second,
@@ -23,6 +24,8 @@ class VirtualMachine(
     private val callbacks: Callbacks,
     private val onMoveOrBeeper: (World) -> Unit = {}
 ) {
+
+    var environment = HashMap<Int, StackValue>();
 
     interface Callbacks {
         fun onCall(callerPosition: Int, calleePosition: Int) {}
@@ -100,6 +103,9 @@ class VirtualMachine(
                 LOOP -> executeLoop()
                 CALL -> executeCall()
 
+                LOAD -> executeLoad()
+                STORE -> executeStore()
+
                 JUMP -> pc = target
                 ELSE -> pc = if (pop() === Bool.FALSE) target else pc + 1
                 THEN -> pc = if (pop() === Bool.TRUE) target else pc + 1
@@ -114,16 +120,26 @@ class VirtualMachine(
             when (target) {
                 0 -> Bool.FALSE
                 1 -> Bool.TRUE
-                else -> LoopCounter(target)
+                else -> Num(target - 2) // offset by 2 to account for false and true
             }
         )
         ++pc
     }
 
+    private fun Instruction.executeLoad() {
+        push(environment[target]!!)
+        ++pc
+    }
+
+    private fun Instruction.executeStore() {
+        environment[target] = pop()
+        ++pc
+    }
+
     private fun Instruction.executeLoop() {
-        val remaining = (pop() as LoopCounter).value - 1
+        val remaining = (pop() as Num).value - 1
         if (remaining > 0) {
-            push(LoopCounter(remaining))
+            push(Num(remaining))
             pc = target
         } else {
             ++pc
@@ -165,6 +181,30 @@ class VirtualMachine(
             AND -> push((pop() === Bool.TRUE) and (pop() === Bool.TRUE))
             OR -> push((pop() === Bool.TRUE) or (pop() === Bool.TRUE))
             XOR -> push((pop() === Bool.TRUE) xor (pop() === Bool.TRUE))
+
+            ADD -> {
+                val lhs = pop() as Num
+                val rhs = pop() as Num
+                push(Num(lhs.value + rhs.value));
+            }
+
+            SUB -> {
+                push((pop() as Num) - (pop() as Num));
+            }
+
+            MUL -> {
+                push((pop() as Num) * (pop() as Num));
+            }
+
+//            DIV -> {
+//                push((pop() as Num) / (pop() as Num));
+//            }
+
+            EQ -> {
+                val lhs = pop()
+                val rhs = pop()
+                push(if (lhs == rhs) Bool.TRUE else Bool.FALSE)
+            }
 
             else -> throw IllegalBytecode(bytecode)
         }
