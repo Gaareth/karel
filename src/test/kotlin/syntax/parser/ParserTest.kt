@@ -6,8 +6,7 @@ import syntax.lexer.Lexer
 import syntax.lexer.Token
 import syntax.lexer.TokenKind
 import syntax.lexer.TokenKind.*
-import syntax.tree.Binary
-import syntax.tree.Node
+import syntax.tree.*
 import syntax.tree.Number
 
 class ParserTest {
@@ -77,6 +76,28 @@ class ParserTest {
                 Binary(Number(2, dummyToken(NUMBER)), dummyToken(PLUS), Number(2, dummyToken(NUMBER))),
                 dummyToken(MINUS),
                 Number(2, dummyToken(NUMBER))
+            ),
+            parser.expression()
+        )
+
+    }
+
+     @Test
+    fun unary() {
+        lexer = Lexer("!5")
+        parser = Parser(lexer)
+        assertAST(
+            Not(dummyToken(BANG), Number(5, dummyToken(NUMBER))),
+            parser.expression()
+        )
+
+        lexer = Lexer("-1+5")
+        parser = Parser(lexer)
+        assertAST(
+            Binary(
+                Unary(dummyToken(MINUS), Number(1, dummyToken(NUMBER))),
+                dummyToken(PLUS),
+                Number(5, dummyToken(NUMBER))
             ),
             parser.expression()
         )
@@ -164,6 +185,22 @@ class ParserTest {
             "" +
                     "let a = true; " +
                     "a = false;"
+        )
+        parser = Parser(lexer)
+        parser.statement()
+        parser.statement()
+    }
+
+    @Test
+    fun varNestedUse() {
+        lexer = Lexer(
+            "let a = 1; " +
+                    "while (true) {" +
+                        " a = a + 1;" +
+                        " if (a == 1) {" +
+                            "   moveForward(); " +
+                        "}" +
+                    "}"
         )
         parser = Parser(lexer)
         parser.statement()
