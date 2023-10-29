@@ -109,9 +109,12 @@ fun Parser.primary(): Expression = when (current) {
                 else -> {
                     val token = accept();
                     when (val storedExpr = environment.get(token.lexeme)) {
-                        is Number, is False, is True -> {
-                            storedExpr as Expression
-                        }
+                        // does not work like this. E.g. var gets altered later on and is used in a loop
+//                        // inline optimization?
+//                        // value is known at compile time?
+//                        is Number, is False, is True -> {
+//                            storedExpr as Expression
+//                        }
 
                         null -> {
                             throw Diagnostic(

@@ -13,7 +13,7 @@ class ReturnAddress(val value: Int) : StackValue {
         get() = 0x808080
 }
 
-class Num(val value: Int) : StackValue {
+data class Num(val value: Int) : StackValue {
     override fun toString(): String {
         return "%4d".format(value)
     }
