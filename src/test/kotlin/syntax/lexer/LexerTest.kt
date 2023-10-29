@@ -138,7 +138,7 @@ class LexerTest {
     }
 
      @Test
-    fun cpmOperators() {
+    fun cmpOperators() {
         lexer = Lexer("== <= >= < >")
 
         assertToken(EQUAL_EQUAL)
@@ -180,5 +180,16 @@ class LexerTest {
         assertToken(VOID)
         assertToken(WHILE)
         assertToken(LET)
+    }
+
+    @Test
+    fun variables() {
+        lexer = Lexer("let a = 5;")
+
+        assertToken(LET)
+        assertToken(IDENTIFIER)
+        assertToken(ASSIGN)
+        assertToken(NUMBER)
+        assertToken(SEMICOLON)
     }
 }

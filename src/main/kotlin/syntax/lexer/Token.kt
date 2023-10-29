@@ -26,4 +26,12 @@ class Token(val kind: TokenKind, val start: Int, val lexeme: String) {
         }
         error("$lexeme out of range $range")
     }
+
+    // for assertEquals, might break stuff? TODO:
+    override fun equals(other: Any?): Boolean {
+        return other is Token && other.kind == this.kind
+    }
+//    fun equalsKind(other: Any?): Boolean {
+//        return other is Token && other.kind == this.kind
+//    }
 }

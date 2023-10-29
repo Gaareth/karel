@@ -25,22 +25,11 @@ fun Parser.repeatExpression(): Expression {
 }
 
 
-// TODO:
-// this is insanely bad, and should be fixed by including conditons as expressions
+
 fun Parser.expression(): Expression {
     return disjunction()
 }
 
-
-//fun Parser.disjunction(): Expression {
-//    var expr = comparison()
-//    while ((current == EQUAL_EQUAL) || (current == BANG_EQUAL)) {
-//        val op = accept()
-//        val right = comparison()
-//        expr = Binary(expr, op, right)
-//    }
-//    return expr
-//}
 
 fun Parser.equality(): Expression {
     var expr = comparison()
@@ -127,7 +116,7 @@ fun Parser.primary(): Expression = when (current) {
                         null -> {
                             throw Diagnostic(
                                 token.start,
-                                "${token.lexeme} is a undefined variable. Use 'let ${token.lexeme} = ???'!"
+                                "${token.lexeme} is a undeclared variable. Use 'let ${token.lexeme} = ???'!"
                             )
                         }
 

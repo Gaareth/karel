@@ -207,7 +207,7 @@ class ParserNegativeTest {
     @Test
     fun repeatMissingNumber() {
         assertDiagnostic(
-            "missing NUMBER", """
+            "illegal", """
         void main() {
             repeat () {
                 moveForward();
@@ -373,9 +373,83 @@ class ParserNegativeTest {
     @Test
     fun numberNotaCondition() {
         assertDiagnostic(
-            "number", """
+            "condition", """
         void main() {
             if (2) {
+                moveForward();
+            }
+        }
+        """
+        )
+    }
+
+    @Test
+    fun notaCondition() {
+        assertDiagnostic(
+            "condition", """
+        void main() {
+            if (1 + 2) {
+                moveForward();
+            }
+        }
+        """
+        )
+    }
+
+    @Test
+    fun undeclaredAssignment() {
+        assertDiagnostic(
+            "undeclared", """
+        void main() {
+            a = 5;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun undeclaredIdentifier() {
+        assertDiagnostic(
+            "undeclared", """
+        void main() {
+            let a = b;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun wrongTypeVar() {
+        assertDiagnostic(
+            "type", """
+        void main() {
+            let a = 2;
+            a = true;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun repeatWithBool() {
+        assertDiagnostic(
+            "type", """
+        void main() {
+            repeat(true) {
+                moveForward();
+            }
+        }
+        """
+        )
+    }
+
+    @Test
+    fun repeatWithBoolVar() {
+        assertDiagnostic(
+            "type", """
+        void main() {
+            let a = true;
+            repeat(a) {
                 moveForward();
             }
         }

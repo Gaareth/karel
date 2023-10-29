@@ -2,14 +2,17 @@ package vm
 
 import freditor.persistent.ChampMap
 
+const val categoryMask = 0xf000 // check if bytecode has additional info
+const val targetMask = 0x0fff // extracts additional info from bytecode
+
 data class Instruction(val bytecode: Int, val position: Int) {
 
     val category: Int
-        get() = bytecode.and(0xf000)
+        get() = bytecode.and(categoryMask)
     // float support?: bytecode.toBits().and(0xf000.toFloat().toBits())
 
     val target: Int
-        get() = bytecode.and(0x0fff)
+        get() = bytecode.and(targetMask)
 
     private val compiledFromSource: Boolean
         get() = position > 0
@@ -61,6 +64,8 @@ data class Instruction(val bytecode: Int, val position: Int) {
             MUL -> "MUL"
             DIV -> "DIV"
 
+            NEG -> "NEG"
+
             EQ -> "EQ"
             NEQ -> "NEQ"
             GT -> "GT"
@@ -68,12 +73,11 @@ data class Instruction(val bytecode: Int, val position: Int) {
             LT -> "LT"
             LTE -> "LTE"
 
+            FALSE -> "FALSE"
+            TRUE -> "TRUE"
+
             else -> when (category) {
-                PUSH -> when (target) {
-                    0 -> "FALSE"
-                    1 -> "TRUE"
-                    else -> "PUSH %03x".format(target - 2)
-                }
+                PUSH -> "PUSH %03x".format(target)
 
                 LOOP -> "LOOP %03x".format(target)
                 CALL -> "CALL %03x".format(target)
@@ -115,8 +119,9 @@ const val NORM = 0x0000
 
 // >= 0x1000? -> category
 const val PUSH = 0x8000
-const val FALSE = PUSH + 0
-const val TRUE = PUSH + 1
+const val FALSE = PUSH - 1
+const val TRUE = PUSH - 2
+
 const val LOOP = 0x9000
 const val CALL = 0xa000
 

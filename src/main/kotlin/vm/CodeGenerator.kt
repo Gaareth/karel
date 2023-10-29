@@ -29,11 +29,6 @@ class CodeGenerator(private val sema: Sema) {
         program.add(Instruction(bytecode, token.start))
     }
 
-    private fun generatePushInstruction(value: Int, token: Token) {
-        // 0 and 1 are reserved for true and false
-        program.add(Instruction(PUSH + value + 2, token.start))
-    }
-
     private val id = IdentityGenerator()
 
     // Forward calls cannot know their target address during code generation.
@@ -142,6 +137,7 @@ class CodeGenerator(private val sema: Sema) {
                 rhs.generate()
                 generateInstruction(STORE + variableIds[lhs.lexeme]!!, lhs)
             }
+
             is Declare -> {
                 rhs.generate()
                 variableIds[lhs.lexeme] = variableIds.size + 1
@@ -195,10 +191,6 @@ class CodeGenerator(private val sema: Sema) {
                     else -> throw Diagnostic(operator.start, "Invalid binary comparison operator")
                 }
             }
-
-            is NumberCondition -> {
-                generatePushInstruction(value.toInt(), token)
-            }
         }
     }
 
@@ -207,8 +199,9 @@ class CodeGenerator(private val sema: Sema) {
             is Variable -> {
                 generateInstruction(LOAD + variableIds[name.lexeme]!!, name)
             }
+
             is Number -> {
-                generatePushInstruction(value.toInt(), token)
+                program.add(Instruction(PUSH + value.toInt(), token.start))
             }
 
             is Binary -> {

@@ -30,6 +30,10 @@ class Num(val value: Int) : StackValue {
         return Num(this.value * num.value)
     }
 
+    operator fun times(num: Int): Num {
+        return Num(this.value * num)
+    }
+
 //    operator fun div(num: Num): Num {
 //        return Num(this.value / num.value)
 //    }

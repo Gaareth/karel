@@ -4,13 +4,14 @@ import common.Diagnostic
 import freditor.Levenshtein
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
+import syntax.tree.Number
 
-fun Parser.condition(): Condition {
+fun Parser.condition(): Expression {
     val disj = disjunction()
-    if (disj !is Condition) {
+    if (disj !is Binary && disj !is Condition) {
         throw Diagnostic(token.start, "Expression is not a condition")
     }
-    return disj as Condition
+    return disj
 }
 
 fun Parser.disjunction(): Expression {

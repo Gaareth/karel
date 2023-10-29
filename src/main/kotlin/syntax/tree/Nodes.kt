@@ -32,9 +32,9 @@ data class Call(val target: Token) : Statement()
 data class Repeat(val repeat: Token, val expr: Expression, val body: Block) : Statement()
 
 // e1se is a Statement? instead of a Block? in order to support else-if (see Parser.statement)
-data class IfThenElse(val iF: Token, val condition: Condition, val th3n: Block, val e1se: Statement?) : Statement()
+data class IfThenElse(val iF: Token, val condition: Expression, val th3n: Block, val e1se: Statement?) : Statement()
 
-data class While(val whi1e: Token, val condition: Condition, val body: Block) : Statement()
+data class While(val whi1e: Token, val condition: Expression, val body: Block) : Statement()
 
 data class Assign(val lhs: Token, val rhs: Expression) : Statement()
 data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statement()
@@ -44,8 +44,6 @@ data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statem
 sealed class Condition : Expression()
 
 data class BinaryCondition(val lhs: Condition, val operator: Token, val rhs: Condition) : Condition()
-data class NumberCondition(val value: Number , val token: Token) : Condition()
-
 
 data class False(val fa1se: Token) : Condition()
 

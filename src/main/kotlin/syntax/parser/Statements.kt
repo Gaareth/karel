@@ -43,13 +43,13 @@ fun Parser.statement(): Statement = when (current) {
         val curr = token;
         if (curr.kind == ASSIGN) {
             next();
-            val value = expect(NUMBER);
+            val value = expression();
             println("ASSSign");
 
             if (environment.assign(id.lexeme, value) == null) {
                 curr.error("Can't assign to undeclared variable '%s'".format(id.lexeme))
             }
-            Assign(id, expression()).semicolon()
+            Assign(id, value).semicolon()
         } else {
             sema(Call(id.emptyParens()).semicolon())
         }

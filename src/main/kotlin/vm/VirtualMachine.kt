@@ -3,7 +3,6 @@ package vm
 import common.Stack
 import common.push
 import logic.World
-import syntax.parser.Environment
 import java.util.concurrent.atomic.AtomicReference
 
 // If "step over" or "step return" do not finish within 1 second,
@@ -99,7 +98,7 @@ class VirtualMachine(
             when (category) {
                 NORM -> executeBasicInstruction(bytecode)
 
-                PUSH -> executePush()
+                PUSH, FALSE.and(categoryMask), TRUE.and(categoryMask) -> executePush()
                 LOOP -> executeLoop()
                 CALL -> executeCall()
 
@@ -118,9 +117,9 @@ class VirtualMachine(
     private fun Instruction.executePush() {
         push(
             when (target) {
-                0 -> Bool.FALSE
-                1 -> Bool.TRUE
-                else -> Num(target - 2) // offset by 2 to account for false and true
+                4095 -> Bool.FALSE // PUSH - 1
+                4094 -> Bool.TRUE // PUSH - 2
+                else -> Num(target)
             }
         )
         ++pc
@@ -204,6 +203,10 @@ class VirtualMachine(
                 val lhs = pop()
                 val rhs = pop()
                 push(if (lhs == rhs) Bool.TRUE else Bool.FALSE)
+            }
+
+            NEG -> {
+                push((pop() as Num) * -1)
             }
 
             else -> throw IllegalBytecode(bytecode)
