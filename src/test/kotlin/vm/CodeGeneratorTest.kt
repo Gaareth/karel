@@ -21,6 +21,10 @@ class CodeGeneratorTest {
         assertEquals(expected, actual)
     }
 
+    private fun pushBytecode(value: Int): Int {
+        return PUSH + value + 2
+    }
+
     @Test
     fun basicCommands() {
         assertBytecode(
@@ -95,7 +99,7 @@ class CodeGeneratorTest {
                 }
             }
             """,
-            PUSH + 9,
+            pushBytecode(9),
             MOVE_FORWARD,
             LOOP + 0x101,
             RETURN,
@@ -114,8 +118,8 @@ class CodeGeneratorTest {
                 }
             }
             """,
-            PUSH + 4,
-            PUSH + 9,
+            pushBytecode(4),
+            pushBytecode(9),
             MOVE_FORWARD,
             LOOP + 0x102,
             LOOP + 0x101,

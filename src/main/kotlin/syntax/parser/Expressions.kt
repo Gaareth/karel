@@ -1,6 +1,7 @@
 package syntax.parser
 
 import common.Diagnostic
+import freditor.Levenshtein
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
 import syntax.tree.Number
@@ -24,9 +25,22 @@ fun Parser.repeatExpression(): Expression {
 }
 
 
+// TODO:
+// this is insanely bad, and should be fixed by including conditons as expressions
 fun Parser.expression(): Expression {
-    return equality()
+    return disjunction()
 }
+
+
+//fun Parser.disjunction(): Expression {
+//    var expr = comparison()
+//    while ((current == EQUAL_EQUAL) || (current == BANG_EQUAL)) {
+//        val op = accept()
+//        val right = comparison()
+//        expr = Binary(expr, op, right)
+//    }
+//    return expr
+//}
 
 fun Parser.equality(): Expression {
     var expr = comparison()
@@ -70,7 +84,7 @@ fun Parser.factor(): Expression {
 }
 
 fun Parser.unary(): Expression {
-    while (match(BANG, MINUS)) {
+    while (match(MINUS)) {
         val op = accept()
         val right = unary()
         return Unary(op, right)
@@ -80,27 +94,51 @@ fun Parser.unary(): Expression {
 
 
 fun Parser.primary(): Expression = when (current) {
+    BANG -> Not(accept(), primary())
+
     NUMBER -> {
         val token = accept()
         Number(token.toInt(0..MAX_VALUE), token)
     }
 
-    IDENTIFIER -> {
-        val token = accept();
-        when (val storedExpr = environment.get(token.lexeme)) {
-            is Number, is False, is True -> {
-                storedExpr as Expression
-            }
+    IDENTIFIER ->
+        when (token.lexeme) {
+            "false" -> False(accept())
+            "true" -> True(accept())
 
-            null -> {
-                throw Diagnostic(token.start, "${token.lexeme} is a undefined variable. Use 'let ${token.lexeme} = ???'!")
-            }
+            "onBeeper" -> OnBeeper(accept().emptyParens())
+            "beeperAhead" -> BeeperAhead(accept().emptyParens())
+            "leftIsClear" -> LeftIsClear(accept().emptyParens())
+            "frontIsClear" -> FrontIsClear(accept().emptyParens())
+            "rightIsClear" -> RightIsClear(accept().emptyParens())
 
-            else -> {
-                Variable(token)
+            else -> when {
+                lookahead.kind == OPENING_PAREN -> {
+                    handleWrongConditionCall()
+                }
+
+                else -> {
+                    val token = accept();
+                    when (val storedExpr = environment.get(token.lexeme)) {
+                        is Number, is False, is True -> {
+                            storedExpr as Expression
+                        }
+
+                        null -> {
+                            throw Diagnostic(
+                                token.start,
+                                "${token.lexeme} is a undefined variable. Use 'let ${token.lexeme} = ???'!"
+                            )
+                        }
+
+                        else -> {
+                            Variable(token)
+                        }
+                    }
+                }
             }
         }
-    }
+
 
     OPENING_PAREN -> {
         accept()

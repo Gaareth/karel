@@ -71,7 +71,7 @@ fun Parser.statement(): Statement = when (current) {
 
     REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())
 
-    WHILE -> While(accept(), parenthesized(::disjunction), block())
+    WHILE -> While(accept(), parenthesized(::condition), block())
 
     IF -> IfThenElse(accept(), parenthesized(::condition), block(), optional(ELSE) {
         when (current) {

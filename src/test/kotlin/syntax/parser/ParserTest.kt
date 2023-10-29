@@ -33,6 +33,10 @@ class ParserTest {
         lexer = Lexer("if (2 == 2 && !onBeeper()) { moveForward(); }")
         parser = Parser(lexer)
         parser.statement()
+
+        lexer = Lexer("if (!onBeeper()) { moveForward(); }")
+        parser = Parser(lexer)
+        parser.statement()
     }
 
 
@@ -41,5 +45,20 @@ class ParserTest {
         lexer = Lexer("!onBeeper() || 2 == 1 && (true || !false) && 100 <= 3")
         parser = Parser(lexer)
         parser.condition()
+    }
+
+    @Test
+    fun varDefine() {
+        lexer = Lexer("" +
+                "let a = true; "
+//                "let b = true; " +
+//                "let c = 2 + 2; " +
+//                "let d = 2 + a;"
+                )
+        parser = Parser(lexer)
+        parser.statement()
+//        parser.statement()
+//        parser.statement()
+//        parser.statement()
     }
 }

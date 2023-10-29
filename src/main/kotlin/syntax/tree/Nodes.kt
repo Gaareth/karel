@@ -41,7 +41,7 @@ data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statem
 
 
 
-sealed class Condition : Node()
+sealed class Condition : Expression()
 
 data class BinaryCondition(val lhs: Condition, val operator: Token, val rhs: Condition) : Condition()
 data class NumberCondition(val value: Number , val token: Token) : Condition()
@@ -61,8 +61,8 @@ data class FrontIsClear(val frontIsClear: Token) : Condition()
 
 data class RightIsClear(val rightIsClear: Token) : Condition()
 
-data class Not(val not: Token, val p: Condition) : Condition()
+data class Not(val not: Token, val p: Expression) : Condition()
 
-data class Conjunction(val p: Condition, val and: Token, val q: Condition) : Condition()
+data class Conjunction(val p: Expression, val and: Token, val q: Expression) : Condition()
 
-data class Disjunction(val p: Condition, val or: Token, val q: Condition) : Condition()
+data class Disjunction(val p: Expression, val or: Token, val q: Expression) : Condition()

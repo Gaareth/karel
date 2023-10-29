@@ -242,6 +242,10 @@ class CodeGenerator(private val sema: Sema) {
                     else -> TODO()
                 }
             }
+
+            is Condition -> {
+                this.generate()
+            }
         }
     }
 }
