@@ -1,7 +1,6 @@
 package syntax.parser
 
 import common.Diagnostic
-import freditor.Levenshtein
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
 import syntax.tree.Number
@@ -10,7 +9,7 @@ import vm.MAX_VALUE
 // precedence (reverse)::: expression -> equality -> comparison --> term -> factor -> unary -> primary
 
 fun Parser.repeatExpression(): Expression {
-    val expr = expression();
+    val expr = expression().assertType(Type.Number);
     if (expr is Number) {
         val number: Number = expr;
         if (number.value.toInt() < 2) {
@@ -25,7 +24,6 @@ fun Parser.repeatExpression(): Expression {
 }
 
 
-
 fun Parser.expression(): Expression {
     return disjunction()
 }
@@ -33,10 +31,11 @@ fun Parser.expression(): Expression {
 
 fun Parser.equality(): Expression {
     var expr = comparison()
-    while ((current == EQUAL_EQUAL) || (current == BANG_EQUAL)) {
+    while (match(EQUAL_EQUAL, BANG_EQUAL)) {
         val op = accept()
-        val right = comparison()
-        expr = Binary(expr, op, right)
+        expr.assertOperandsType(op, Type.Number, Type.Bool)
+        val right = comparison().assertOperandsType(op, Type.Number, Type.Bool)
+        expr = Binary(expr, op, right).assertResultType(Type.Bool)
     }
     return expr
 }
@@ -45,8 +44,9 @@ fun Parser.comparison(): Expression {
     var expr = term()
     while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
         val op = accept()
-        val right = term()
-        expr = Binary(expr, op, right)
+        expr.assertOperandsType(op, Type.Number)
+        val right = term().assertOperandsType(op, Type.Number)
+        expr = Binary(expr, op, right).assertResultType(Type.Bool)
     }
     return expr
 }
@@ -55,8 +55,9 @@ fun Parser.term(): Expression {
     var expr = factor()
     while (match(PLUS, MINUS)) {
         val op = accept()
-        val right = factor()
-        expr = Binary(expr, op, right)
+        expr.assertOperandsType(op, Type.Number)
+        val right = factor().assertOperandsType(op, Type.Number)
+        expr = Binary(expr, op, right).assertResultType(Type.Number)
     }
     return expr
 }
@@ -66,8 +67,10 @@ fun Parser.factor(): Expression {
     var expr = unary()
     while (match(STAR, SLASH)) {
         val op = accept()
-        val right = unary()
-        expr = Binary(expr, op, right)
+        expr.assertOperandsType(op, Type.Number)
+
+        val right = unary().assertOperandsType(op, Type.Number)
+        expr = Binary(expr, op, right).assertResultType(Type.Number)
     }
     return expr
 }
@@ -76,11 +79,14 @@ fun Parser.unary(): Expression {
     while (match(MINUS)) {
         val op = accept()
         val right = unary()
+        val operandType = typeOfExpression(right)
+        if (operandType != Type.Number) {
+            op.error("You can't negate a $operandType. Right side of ${op.lexeme} has to be a Number")
+        }
         return Unary(op, right)
     }
     return primary()
 }
-
 
 fun Parser.primary(): Expression = when (current) {
     BANG -> Not(accept(), primary())

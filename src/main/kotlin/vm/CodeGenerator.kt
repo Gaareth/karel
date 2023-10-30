@@ -178,19 +178,19 @@ class CodeGenerator(private val sema: Sema) {
                 generateInstruction(OR, or)
             }
 
-            is BinaryCondition -> {
-                lhs.generate()
-                rhs.generate()
-                when (operator.kind) {
-                    TokenKind.EQUAL_EQUAL -> generateInstruction(EQ, operator)
-                    TokenKind.BANG_EQUAL -> generateInstruction(NEG, operator)
-                    TokenKind.GREATER_EQUAL -> generateInstruction(GTE, operator)
-                    TokenKind.LESS_EQUAL -> generateInstruction(LTE, operator)
-                    TokenKind.GREATER -> generateInstruction(GT, operator)
-                    TokenKind.LESS -> generateInstruction(LT, operator)
-                    else -> throw Diagnostic(operator.start, "Invalid binary comparison operator")
-                }
-            }
+//            is BinaryCondition -> {
+//                lhs.generate()
+//                rhs.generate()
+//                when (operator.kind) {
+//                    TokenKind.EQUAL_EQUAL -> generateInstruction(EQ, operator)
+//                    TokenKind.BANG_EQUAL -> generateInstruction(NEG, operator)
+//                    TokenKind.GREATER_EQUAL -> generateInstruction(GTE, operator)
+//                    TokenKind.LESS_EQUAL -> generateInstruction(LTE, operator)
+//                    TokenKind.GREATER -> generateInstruction(GT, operator)
+//                    TokenKind.LESS -> generateInstruction(LT, operator)
+//                    else -> throw Diagnostic(operator.start, "Invalid binary comparison operator")
+//                }
+//            }
         }
     }
 

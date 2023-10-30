@@ -24,6 +24,20 @@ abstract class LexerBase(protected val input: String) {
         return current
     }
 
+    fun peek(): Char {
+        val nextIndex = index + 1;
+        return if ((nextIndex) < input.length) input[nextIndex] else EOF
+    }
+
+    fun match(expected: Char): Boolean {
+        if (peek() != expected) {
+            return false
+        }
+
+        next()
+        return true
+    }
+
     protected fun lexeme(): String {
         return input.substring(start, index)
     }

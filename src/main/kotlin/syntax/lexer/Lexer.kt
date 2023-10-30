@@ -35,28 +35,34 @@ class Lexer(input: String) : LexerBase(input) {
             '{' -> nextVerbatim(OPENING_BRACE)
             '}' -> nextVerbatim(CLOSING_BRACE)
 
-            '!' -> nextVerbatim(BANG)
+            '!' -> {
+                if (match('='))
+                    nextVerbatim(BANG_EQUAL)
+                else
+                    nextVerbatim(BANG)
+            }
+
             '+' -> nextVerbatim(PLUS)
             '-' -> nextVerbatim(MINUS)
             '*' -> nextVerbatim(STAR)
             //TODO slash?
 
             '=' -> {
-                if (next() == '=')
+                if (match('='))
                     nextVerbatim(EQUAL_EQUAL)
                 else
                     nextVerbatim(ASSIGN)
             }
 
             '<' -> {
-                if (next() == '=')
+                if (match('='))
                     nextVerbatim(LESS_EQUAL)
                 else
                     nextVerbatim(LESS)
             }
 
             '>' -> {
-                if (next() == '=')
+                if (match('='))
                     nextVerbatim(GREATER_EQUAL)
                 else
                     nextVerbatim(GREATER)
@@ -113,6 +119,7 @@ class Lexer(input: String) : LexerBase(input) {
 //            }
             error("Floating point number are (currently?) not supported")
         }
+
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> number()
 
         else -> token(NUMBER)

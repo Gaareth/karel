@@ -1,17 +1,11 @@
 package syntax.parser
 
-import common.Diagnostic
 import freditor.Levenshtein
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
-import syntax.tree.Number
 
 fun Parser.condition(): Expression {
-    val disj = disjunction()
-    if (disj !is Binary && disj !is Condition) {
-        throw Diagnostic(token.start, "Expression is not a condition")
-    }
-    return disj
+    return disjunction().assertType(Type.Bool)
 }
 
 fun Parser.disjunction(): Expression {
@@ -19,6 +13,7 @@ fun Parser.disjunction(): Expression {
     return if (current != BAR_BAR) {
         left
     } else {
+        left.assertOperandsType(token, Type.Bool)
         Disjunction(left, accept(), disjunction())
     }
 }
@@ -28,6 +23,7 @@ fun Parser.conjunction(): Expression {
     return if (current != AMPERSAND_AMPERSAND) {
         left
     } else {
+        left.assertOperandsType(token, Type.Bool)
         Conjunction(left, accept(), conjunction())
     }
 }

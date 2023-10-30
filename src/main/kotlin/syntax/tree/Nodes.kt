@@ -43,7 +43,7 @@ data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statem
 
 sealed class Condition : Expression()
 
-data class BinaryCondition(val lhs: Condition, val operator: Token, val rhs: Condition) : Condition()
+//data class BinaryCondition(val lhs: Condition, val operator: Token, val rhs: Condition) : Condition()
 
 data class False(val fa1se: Token) : Condition()
 

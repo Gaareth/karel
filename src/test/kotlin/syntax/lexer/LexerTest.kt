@@ -137,10 +137,11 @@ class LexerTest {
         assertToken(STAR)
     }
 
-     @Test
+    @Test
     fun cmpOperators() {
-        lexer = Lexer("== <= >= < >")
+        lexer = Lexer("!= == <= >= < >")
 
+        assertToken(BANG_EQUAL)
         assertToken(EQUAL_EQUAL)
         assertToken(LESS_EQUAL)
         assertToken(GREATER_EQUAL)
@@ -169,6 +170,20 @@ class LexerTest {
         assertIdentifier("the_quick_brown_fox_jumps_over_the_lazy_dog")
         assertIdentifier("THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
     }
+
+    @Test
+    fun falseTrue() {
+        lexer =
+            Lexer("false true !false !true")
+
+        assertIdentifier("false")
+        assertIdentifier("true")
+        assertToken(BANG)
+        assertIdentifier("false")
+        assertToken(BANG)
+        assertIdentifier("true")
+    }
+
 
     @Test
     fun keywords() {

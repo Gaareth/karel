@@ -373,7 +373,7 @@ class ParserNegativeTest {
     @Test
     fun numberNotaCondition() {
         assertDiagnostic(
-            "condition", """
+            "Bool", """
         void main() {
             if (2) {
                 moveForward();
@@ -452,6 +452,17 @@ class ParserNegativeTest {
             repeat(a) {
                 moveForward();
             }
+        }
+        """
+        )
+    }
+
+    @Test
+    fun minusBool() {
+         assertDiagnostic(
+            "not a number", """
+        void main() {
+            let a = -true;
         }
         """
         )
