@@ -82,7 +82,7 @@ class ParserTest {
 
     }
 
-     @Test
+    @Test
     fun unary() {
         lexer = Lexer("!5")
         parser = Parser(lexer)
@@ -166,7 +166,7 @@ class ParserTest {
                     "let a = true; " +
                     "let b = true; " +
                     "let c = 2 + 2; " +
-                    "let d = 2 + a; " +
+                    "let d = 2 + c; " +
                     "let e = 7;" +
                     "let f = 0 + 100 - 2 * 30 + 2;"
         )
@@ -192,14 +192,32 @@ class ParserTest {
     }
 
     @Test
+    fun varAssignComplex() {
+        lexer = Lexer(
+            """
+                {
+                    let a = 2;
+                    let b = 3;
+                    if (true) {
+                        let c = a + b;
+                        a = c;
+                    }
+                }
+            """.trimIndent()
+        )
+        parser = Parser(lexer)
+        parser.block()
+    }
+
+    @Test
     fun varNestedUse() {
         lexer = Lexer(
             "let a = 1; " +
                     "while (true) {" +
-                        " a = a + 1;" +
-                        " if (a == 1) {" +
-                            "   moveForward(); " +
-                        "}" +
+                    " a = a + 1;" +
+                    " if (a == 1) {" +
+                    "   moveForward(); " +
+                    "}" +
                     "}"
         )
         parser = Parser(lexer)

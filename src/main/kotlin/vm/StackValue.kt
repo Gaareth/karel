@@ -34,6 +34,10 @@ data class Num(val value: Int) : StackValue {
         return Num(this.value * num)
     }
 
+     operator fun compareTo(num: Num): Int {
+        return this.value.compareTo(num.value)
+    }
+
 //    operator fun div(num: Num): Num {
 //        return Num(this.value / num.value)
 //    }

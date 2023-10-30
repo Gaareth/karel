@@ -26,8 +26,8 @@ class TypeCheckTest {
 
     @Test
     fun binaryOperations() {
-         assertOk(
-           """
+        assertOk(
+            """
         void main() {
             let a = 1 + 3 - 4 * 5;
             let b = true || false && 1 == 2 && 1 < 2 && 2 > 1 && 2 <= 2 && 2 >= 2 && 1 != 2;
@@ -44,10 +44,10 @@ class TypeCheckTest {
     }
 
     @Test
-    fun binaryOperationsBoth() {
-         assertDiagnostic(
-             "both operands",
-           """
+    fun binaryOperationsSimple() {
+        assertDiagnostic(
+            "Operands of +",
+            """
         void main() {
             let a = 1 + true;       
           }
@@ -56,10 +56,22 @@ class TypeCheckTest {
     }
 
     @Test
+    fun binaryOperationsBoth() {
+        assertDiagnostic(
+            "both operands",
+            """
+        void main() {
+            let a = 1 == true;       
+          }
+        """
+        )
+    }
+
+    @Test
     fun expectedBool() {
-         assertDiagnostic(
-             "to be a Bool. Is: Number",
-           """
+        assertDiagnostic(
+            "to be a Bool. Is: Number",
+            """
         void main() {
              if (2 * 2) {
                 moveForward();
@@ -71,9 +83,9 @@ class TypeCheckTest {
 
     @Test
     fun wrongOperandType() {
-         assertDiagnostic(
-             "Operands",
-           """
+        assertDiagnostic(
+            "Operands",
+            """
         void main() {
              let a = 2 * 7 || ((!false) && true || false);
           }

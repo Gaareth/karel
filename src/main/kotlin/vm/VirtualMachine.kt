@@ -205,6 +205,26 @@ class VirtualMachine(
                 push(if (lhs == rhs) Bool.TRUE else Bool.FALSE)
             }
 
+            NEQ -> {
+                push(if (pop() != pop()) Bool.TRUE else Bool.FALSE)
+            }
+
+            GT -> {
+                push(if ((pop() as Num) > (pop() as Num)) Bool.TRUE else Bool.FALSE)
+            }
+
+            LT -> {
+                push(if ((pop() as Num) < (pop() as Num)) Bool.TRUE else Bool.FALSE)
+            }
+
+            GTE -> {
+                push(if ((pop() as Num) >= (pop() as Num)) Bool.TRUE else Bool.FALSE)
+            }
+
+            LTE -> {
+                push(if ((pop() as Num) <= (pop() as Num)) Bool.TRUE else Bool.FALSE)
+            }
+
             NEG -> {
                 push((pop() as Num) * -1)
             }

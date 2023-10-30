@@ -11,7 +11,8 @@ enum class Type {
     Bool
 }
 
-fun <T : Expression> T.assertType(vararg expected: Type, msg: String? = null): T {
+
+fun Expression.assertType(env: Environment, vararg expected: Type, msg: String? = null): Expression {
     var msg = msg;
     if (msg == null) {
         if (this is Binary) {
@@ -22,47 +23,47 @@ fun <T : Expression> T.assertType(vararg expected: Type, msg: String? = null): T
 
     }
 
-    val operandType = typeOfExpression(this)
+    val operandType = this.type(env)
     if (!expected.contains(operandType)) {
-        val exprToken = tokenOfExpression(this)
+        val exprToken = this.token()
         exprToken.error(msg.format(exprToken.lexeme, expected.joinToString(separator = ", or "), operandType))
     }
     return this
 }
 
-fun <T : Expression> T.assertResultType(vararg expected: Type): T {
-    return this.assertType(*expected, msg = "Result of %s has to be a %s")
+fun Expression.assertResultType(env: Environment, vararg expected: Type): Expression {
+    return this.assertType(env, *expected, msg = "Result of %s has to be a %s")
 }
 
-fun <T : Expression> T.assertOperandsType(op: Token, vararg expected: Type): T {
-    return this.assertType(*expected, msg = "Operands of $op (%s) has to be a %s")
+fun Expression.assertOperandsType(env: Environment, op: Token, vararg expected: Type): Expression {
+    return this.assertType(env, *expected, msg = "Operands of $op (%s) have to be a %s")
 }
 
 
-fun tokenOfExpression(expr: Expression): Token {
-    return when (expr) {
-        is Binary -> expr.operator
-        is BeeperAhead -> expr.beeperAhead
-        is Conjunction -> expr.and
-        is Disjunction -> expr.or
-        is False -> expr.fa1se
-        is FrontIsClear -> expr.frontIsClear
-        is LeftIsClear -> expr.leftIsClear
-        is Not -> expr.not
-        is OnBeeper -> expr.onBeeper
-        is RightIsClear -> expr.rightIsClear
-        is True -> expr.tru3
-        is Number -> expr.token
-        is Unary -> expr.operator
-        is Variable -> expr.name
+fun Expression.token(): Token {
+    return when (this) {
+        is Binary -> this.operator
+        is BeeperAhead -> this.beeperAhead
+        is Conjunction -> this.and
+        is Disjunction -> this.or
+        is False -> this.fa1se
+        is FrontIsClear -> this.frontIsClear
+        is LeftIsClear -> this.leftIsClear
+        is Not -> this.not
+        is OnBeeper -> this.onBeeper
+        is RightIsClear -> this.rightIsClear
+        is True -> this.tru3
+        is Number -> this.token
+        is Unary -> this.operator
+        is Variable -> this.name
     }
 }
 
-fun typeOfExpression(expr: Expression): Type {
-    return when (expr) {
+fun Expression.type(env: Environment): Type {
+    return when (val expr = this) {
         is Binary -> {
-            val leftType = typeOfExpression(expr.lhs);
-            val rightType = typeOfExpression(expr.rhs);
+            val leftType = expr.lhs.type(env)
+            val rightType = expr.rhs.type(env)
 
             if (leftType != rightType) {
                 expr.operator.error("${expr.operator.lexeme} requires both operands to be of the same type")
@@ -84,6 +85,6 @@ fun typeOfExpression(expr: Expression): Type {
         -> Type.Bool
 
         is Number, is Unary -> Type.Number
-        is Variable -> TODO()
+        is Variable -> env.get(expr.name.lexeme)!!
     }
 }

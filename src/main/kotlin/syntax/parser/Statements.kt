@@ -44,11 +44,17 @@ fun Parser.statement(): Statement = when (current) {
         if (curr.kind == ASSIGN) {
             next();
             val value = expression();
-            println("ASSSign");
+            val newType = value.type(environment)
+            val storedType = environment.get(id.lexeme)
+            val ok = environment.assign(id.lexeme, value.type(environment))
 
-            if (environment.assign(id.lexeme, value) == null) {
-                curr.error("Can't assign to undeclared variable '%s'".format(id.lexeme))
+            if (ok == null) {
+                curr.error("Can't assign to undeclared variable '${id.lexeme}'")
+            } else if (storedType != newType) {
+                curr.error("${id.lexeme} is of type $storedType. Don't assign ${value.token().lexeme} (a $newType) to it. Use 'let ${id.lexeme} = ${value.token().lexeme}'")
             }
+
+
             Assign(id, value).semicolon()
         } else {
             sema(Call(id.emptyParens()).semicolon())
@@ -60,8 +66,7 @@ fun Parser.statement(): Statement = when (current) {
         val id = expect(IDENTIFIER);
         expect(ASSIGN);
         val rhs = expression()
-        println(id.lexeme)
-        println(rhs.toString())
+
         val declaration = Declare(let, id, rhs).semicolon();
         environment.define(id.lexeme, rhs)
         declaration

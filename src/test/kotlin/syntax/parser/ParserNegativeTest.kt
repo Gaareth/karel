@@ -386,7 +386,7 @@ class ParserNegativeTest {
     @Test
     fun notaCondition() {
         assertDiagnostic(
-            "condition", """
+            "Bool", """
         void main() {
             if (1 + 2) {
                 moveForward();
@@ -433,7 +433,7 @@ class ParserNegativeTest {
     @Test
     fun repeatWithBool() {
         assertDiagnostic(
-            "type", """
+            "Number", """
         void main() {
             repeat(true) {
                 moveForward();
@@ -446,7 +446,7 @@ class ParserNegativeTest {
     @Test
     fun repeatWithBoolVar() {
         assertDiagnostic(
-            "type", """
+            "Number", """
         void main() {
             let a = true;
             repeat(a) {
@@ -460,7 +460,7 @@ class ParserNegativeTest {
     @Test
     fun minusBool() {
          assertDiagnostic(
-            "not a number", """
+            "Number", """
         void main() {
             let a = -true;
         }
