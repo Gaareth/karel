@@ -459,10 +459,67 @@ class ParserNegativeTest {
 
     @Test
     fun minusBool() {
-         assertDiagnostic(
+        assertDiagnostic(
             "Number", """
         void main() {
             let a = -true;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun wrongReturnType() {
+        assertDiagnostic(
+            "wrong", """
+        bool main() {
+            return 2;
+        }
+        """
+        )
+
+        assertDiagnostic(
+            "wrong", """
+        num main() {
+            return true || false;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun missingReturnType() {
+        assertDiagnostic(
+            "missing", """
+        bool main() {
+            moveForward();
+        }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+        num main() {
+            moveForward();
+        }
+        """
+        )
+    }
+
+     @Test
+    fun noVoidReturn() {
+        assertDiagnostic(
+            "return", """
+        void main() {
+            return 2042;
+        }
+        """
+        )
+
+        assertDiagnostic(
+            "return", """
+        void main() {
+            return false;
         }
         """
         )

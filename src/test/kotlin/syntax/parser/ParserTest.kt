@@ -224,4 +224,53 @@ class ParserTest {
         parser.statement()
         parser.statement()
     }
+
+    @Test
+    fun fnReturn() {
+        lexer = Lexer("bool isOnBeeper() { return true; } ")
+        parser = Parser(lexer)
+        parser.statement()
+
+        lexer = Lexer("num isOnBeeper() { return 1; } ")
+        parser = Parser(lexer)
+        parser.statement()
+
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.statement()
+    }
+
+    @Test
+    fun fnArgs() {
+        lexer = Lexer("void isOnBeeper(num n, bool b) { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.statement()
+
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.statement()
+    }
+
+    @Test
+    fun fnCall() {
+        lexer = Lexer(
+            """
+            void isOnBeeper(num n, bool b) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, true);
+            }
+            
+            """
+        )
+        parser = Parser(lexer)
+        parser.statement()
+
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.statement()
+    }
+
 }

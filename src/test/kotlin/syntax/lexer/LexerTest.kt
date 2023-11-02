@@ -207,4 +207,13 @@ class LexerTest {
         assertToken(NUMBER)
         assertToken(SEMICOLON)
     }
+
+    @Test
+    fun types() {
+        lexer = Lexer("bool num void")
+
+        assertToken(BOOL)
+        assertToken(NUM)
+        assertToken(VOID)
+    }
 }

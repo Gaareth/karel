@@ -13,6 +13,9 @@ enum class TokenKind(val lexeme: String) {
     WHILE("while"),
     LET("let"),
 
+    NUM("num"),
+    BOOL("bool"),
+    RETURN("return"),
 
     OPENING_PAREN("("),
     CLOSING_PAREN(")"),
@@ -22,6 +25,7 @@ enum class TokenKind(val lexeme: String) {
     BANG("!"),
     AMPERSAND_AMPERSAND("&&"),
     BAR_BAR("||"),
+    COMMA(","),
 
     ASSIGN("="),
 
