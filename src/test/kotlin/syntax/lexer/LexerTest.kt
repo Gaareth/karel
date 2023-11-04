@@ -118,12 +118,14 @@ class LexerTest {
 
     @Test
     fun separators() {
-        lexer = Lexer("();{}")
+        lexer = Lexer("();{}:,")
         assertToken(OPENING_PAREN)
         assertToken(CLOSING_PAREN)
         assertToken(SEMICOLON)
         assertToken(OPENING_BRACE)
         assertToken(CLOSING_BRACE)
+        assertToken(COLON)
+        assertToken(COMMA)
     }
 
     @Test

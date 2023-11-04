@@ -203,7 +203,7 @@ class ParserTest {
                         a = c;
                     }
                 }
-            """.trimIndent()
+            """
         )
         parser = Parser(lexer)
         parser.block()
@@ -227,35 +227,35 @@ class ParserTest {
 
     @Test
     fun fnReturn() {
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.command()
+
         lexer = Lexer("bool isOnBeeper() { return true; } ")
         parser = Parser(lexer)
-        parser.statement()
+        parser.command()
 
         lexer = Lexer("num isOnBeeper() { return 1; } ")
         parser = Parser(lexer)
-        parser.statement()
-
-        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
-        parser = Parser(lexer)
-        parser.statement()
+        parser.command()
     }
 
     @Test
     fun fnArgs() {
-        lexer = Lexer("void isOnBeeper(num n, bool b) { moveForward(); } ")
+        lexer = Lexer("void isOnBeeper(n: num, b: bool) { moveForward(); } ")
         parser = Parser(lexer)
-        parser.statement()
+        parser.command()
 
         lexer = Lexer("void isOnBeeper() { moveForward(); } ")
         parser = Parser(lexer)
-        parser.statement()
+        parser.command()
     }
 
     @Test
     fun fnCall() {
         lexer = Lexer(
             """
-            void isOnBeeper(num n, bool b) {
+            void isOnBeeper(n: num, b: bool) {
                 moveForward(); 
             } 
             
@@ -266,11 +266,11 @@ class ParserTest {
             """
         )
         parser = Parser(lexer)
-        parser.statement()
+        parser.command()
 
         lexer = Lexer("void isOnBeeper() { moveForward(); } ")
         parser = Parser(lexer)
-        parser.statement()
+        parser.command()
     }
 
 }

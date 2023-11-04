@@ -146,6 +146,6 @@ fun Parser.primary(): Expression = when (current) {
     }
 
     else -> {
-        illegalStartOf("expression")
+        illegalStartOf("expression: ${token.lexeme}")
     }
 }

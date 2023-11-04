@@ -32,8 +32,10 @@ class Lexer(input: String) : LexerBase(input) {
             '(' -> nextVerbatim(OPENING_PAREN)
             ')' -> nextVerbatim(CLOSING_PAREN)
             ';' -> nextVerbatim(SEMICOLON)
+            ':' -> nextVerbatim(COLON)
             '{' -> nextVerbatim(OPENING_BRACE)
             '}' -> nextVerbatim(CLOSING_BRACE)
+            ',' -> nextVerbatim(COMMA)
 
             '!' -> {
                 if (match('='))

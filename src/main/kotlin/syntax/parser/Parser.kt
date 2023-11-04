@@ -38,9 +38,9 @@ class Parser(private val lexer: Lexer) {
         return result
     }
 
-    fun expect(expected: TokenKind): Token {
-        if (current != expected)
-            throw Diagnostic(previousEnd, "missing $expected")
+    fun expect(vararg expected: TokenKind): Token {
+        if (!match(*expected))
+            throw Diagnostic(previousEnd, "missing ${expected.joinToString(separator = ", or ")}")
         return accept()
     }
 
@@ -90,6 +90,17 @@ class Parser(private val lexer: Lexer) {
 
     inline fun <T> list0Until(terminator: TokenKind, parse: () -> T): List<T> {
         return list0While({ current != terminator }, parse)
+    }
+
+    inline fun <T> listArgs(parse: () -> T): List<T> {
+        val args = mutableListOf<T>()
+        while (current != CLOSING_PAREN) {
+            args.add(parse())
+            if (current == COMMA) {
+                accept()
+            }
+        }
+        return args
     }
 
     inline fun <T> parenthesized(parse: () -> T): T {

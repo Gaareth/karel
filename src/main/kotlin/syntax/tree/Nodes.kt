@@ -1,7 +1,7 @@
 package syntax.tree
 
 import syntax.lexer.Token
-import syntax.lexer.TokenKind
+import syntax.parser.Type
 import kotlin.Number
 
 sealed class Node
@@ -9,7 +9,10 @@ sealed class Node
 
 data class Program(val commands: List<Command>) : Node()
 
-data class Command(val void: Token, val identifier: Token, val body: Block) : Node()
+data class formalArg(val name: Token, val type: Type) : Node()
+data class actualArg(val expr: Expression) : Node()
+
+data class Command(val void: Token, val identifier: Token, val args: List<formalArg>, val body: Block) : Node()
 
 data class Block(val openingBrace: Token, val statements: List<Statement>, val closingBrace: Token) : Statement()
 
@@ -18,7 +21,7 @@ sealed class Expression : Node()
 data class Binary(val lhs: Expression, val operator: Token, val rhs: Expression) : Expression()
 data class Unary(val operator: Token, val operand: Expression) : Expression()
 
-data class Number(val value: Number , val token: Token) : Expression()
+data class Number(val value: Number, val token: Token) : Expression()
 
 
 //data class Literal(val value: Any, val token: Token) : Expression()
@@ -27,7 +30,9 @@ data class Variable(val name: Token) : Expression()
 
 sealed class Statement : Node()
 
-data class Call(val target: Token) : Statement()
+data class Return(val ret: Token, val expr: Expression) : Statement()
+
+data class Call(val target: Token, val args: List<Expression>) : Statement()
 
 data class Repeat(val repeat: Token, val expr: Expression, val body: Block) : Statement()
 
@@ -38,7 +43,6 @@ data class While(val whi1e: Token, val condition: Expression, val body: Block) :
 
 data class Assign(val lhs: Token, val rhs: Expression) : Statement()
 data class Declare(val let: Token, val lhs: Token, val rhs: Expression) : Statement()
-
 
 
 sealed class Condition : Expression()

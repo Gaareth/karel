@@ -143,6 +143,8 @@ class CodeGenerator(private val sema: Sema) {
                 variableIds[lhs.lexeme] = variableIds.size + 1
                 generateInstruction(STORE + variableIds[lhs.lexeme]!!, let)
             }
+
+            is Return -> TODO()
         }
     }
 

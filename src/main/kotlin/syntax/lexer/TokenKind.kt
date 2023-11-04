@@ -26,6 +26,7 @@ enum class TokenKind(val lexeme: String) {
     AMPERSAND_AMPERSAND("&&"),
     BAR_BAR("||"),
     COMMA(","),
+    COLON(":"),
 
     ASSIGN("="),
 

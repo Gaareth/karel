@@ -8,7 +8,15 @@ import syntax.tree.Number
 
 enum class Type {
     Number,
-    Bool
+    Bool,
+    Void
+}
+
+fun Token.toType(): Type = when (this.kind) {
+    TokenKind.NUM -> Type.Number
+    TokenKind.BOOL -> Type.Bool
+    TokenKind.VOID -> Type.Void
+    else -> throw Exception("Illegal Type")
 }
 
 

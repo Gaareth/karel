@@ -506,7 +506,7 @@ class ParserNegativeTest {
         )
     }
 
-     @Test
+    @Test
     fun noVoidReturn() {
         assertDiagnostic(
             "return", """
@@ -521,6 +521,51 @@ class ParserNegativeTest {
         void main() {
             return false;
         }
+        """
+        )
+    }
+
+    @Test
+    fun fnCallWrongArgs() {
+        assertDiagnostic(
+            "wrong", """
+        void isOnBeeper(num n, bool b) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(true, 2);
+            }
+        """
+        )
+    }
+
+    @Test
+    fun fnCallNotEnoughArgs() {
+        assertDiagnostic(
+            "enough", """
+        void isOnBeeper(num n, bool b) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(true);
+            }
+        """
+        )
+    }
+
+    @Test
+    fun fnCallTooManyArgs() {
+        assertDiagnostic(
+            "enough", """
+        void isOnBeeper(num n, bool b) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, true, 2);
+            }
         """
         )
     }

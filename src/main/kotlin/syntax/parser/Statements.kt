@@ -10,7 +10,14 @@ fun Parser.program(): Program {
 }
 
 fun Parser.command(): Command = when (current) {
-    VOID -> sema(Command(accept(), expect(IDENTIFIER).emptyParens(), block()))
+    VOID, NUM, BOOL -> sema(
+        Command(
+            accept(),
+            expect(IDENTIFIER),
+            parenthesized { listArgs(::formalArg) },
+            block()
+        )
+    )
 
     CLOSING_BRACE -> token.error("too many closing braces")
 
@@ -28,6 +35,10 @@ fun Parser.command(): Command = when (current) {
     else -> token.error("expected void")
 }
 
+//fun Parser.call(): Call {
+//
+//}
+
 fun Parser.block(): Block {
     val prevEnvironment = environment;
     environment = Environment(prevEnvironment)
@@ -36,6 +47,17 @@ fun Parser.block(): Block {
     return block
 }
 
+fun Parser.formalArg(): formalArg {
+    val arg = expect(IDENTIFIER)
+    expect(COLON)
+    val type = expect(BOOL, NUM, VOID)
+    return formalArg(arg, type.toType())
+}
+
+fun Parser.actualArg(): actualArg {
+    val expr = expression().assertType(environment, Type.Bool, Type.Number)
+    return syntax.tree.actualArg(expr)
+}
 
 fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> {
@@ -54,10 +76,9 @@ fun Parser.statement(): Statement = when (current) {
                 curr.error("${id.lexeme} is of type $storedType. Don't assign ${value.token().lexeme} (a $newType) to it. Use 'let ${id.lexeme} = ${value.token().lexeme}'")
             }
 
-
             Assign(id, value).semicolon()
         } else {
-            sema(Call(id.emptyParens()).semicolon())
+            sema(Call(id, parenthesized { listArgs(::expression) }).semicolon())
         }
     }
 
@@ -72,7 +93,10 @@ fun Parser.statement(): Statement = when (current) {
         declaration
     }
 
-//    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
+    RETURN -> {
+        // TODO: check
+        Return(accept(), expression().semicolon())
+    }
 
     REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())
 
