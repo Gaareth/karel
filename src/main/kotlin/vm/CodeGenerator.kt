@@ -131,7 +131,10 @@ class CodeGenerator(private val sema: Sema) {
                 generateInstruction(STORE + variableIds[lhs.lexeme]!!, let)
             }
 
-            is Return -> TODO()
+            is Return -> {
+                expr.generate()
+                generateInstruction(RETURN, ret)
+            }
             is ExpressionStmt -> expr.generate()
         }
     }
@@ -208,7 +211,7 @@ class CodeGenerator(private val sema: Sema) {
                         generateInstruction(NEG, operator)
                     }
 
-                    else -> TODO()
+                    else -> throw Diagnostic(operator.start, "Invalid unary operator")
                 }
             }
 

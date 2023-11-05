@@ -155,7 +155,17 @@ class VirtualMachine(
 
     private fun executeReturn() {
         callbacks.onReturn()
-        pc = (pop() as ReturnAddress).value
+        val returnAddress: ReturnAddress
+        val returnValue = pop()
+
+        if (returnValue is ReturnAddress) {
+            returnAddress = returnValue
+        } else {
+            returnAddress = (pop() as ReturnAddress)
+            push(returnValue)
+        }
+
+        pc = returnAddress.value
         --callDepth
     }
 
