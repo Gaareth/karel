@@ -7,7 +7,6 @@ import syntax.lexer.TokenKind
 import syntax.lexer.TokenKind.*
 
 class Parser(private val lexer: Lexer) {
-    var environment = Environment()
     private var previousEnd: Int = 0
 
     var previous: Token? = null;
@@ -47,7 +46,7 @@ class Parser(private val lexer: Lexer) {
     fun match(vararg tokens: TokenKind): Boolean {
         for (token in tokens) {
             if (token == current) {
-                return  true
+                return true
             }
         }
         return false
@@ -119,5 +118,8 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    val sema = Sema()
+
+    val sema = Sema(this)
+    var environment = Environment(null, this)
+    var currentFunctionReturnType: Type? = null
 }

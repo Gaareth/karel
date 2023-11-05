@@ -2,15 +2,19 @@ package syntax.parser
 
 import syntax.tree.Expression
 
-class Environment(private val enclosing: Environment? = null) {
-    private val values = HashMap<String, Type>()
+class Environment(private val enclosing: Environment? = null, private val parser: Parser) {
+    private val values = HashMap<String, Type?>()
 //    private val enclosing: Environment? = null
 
     fun define(name: String, value: Expression) {
-        values[name] = value.type(this)
+        values[name] = value.type(parser)
     }
 
-    fun assign(name: String, value: Type): Unit? {
+    fun define(name: String, type: Type) {
+        values[name] = type
+    }
+
+    fun assign(name: String, value: Type?): Unit? {
         if (values.contains(name)) {
             values[name] = value
             return Unit // OK

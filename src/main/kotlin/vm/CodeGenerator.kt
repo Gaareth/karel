@@ -13,7 +13,7 @@ typealias Address = Int
 class CodeGenerator(private val sema: Sema) {
 
     private val program: MutableList<Instruction> = createInstructionBuffer()
-    private var variableIds = HashMap<String, Int>();
+    private var variableIds = HashMap<String, Int>()
 
     private val pc: Int
         get() = program.size
@@ -79,6 +79,7 @@ class CodeGenerator(private val sema: Sema) {
         program[origin] = program[origin].withTarget(pc)
     }
 
+
     private fun Statement.generate() {
         when (this) {
             is Block -> {
@@ -114,23 +115,9 @@ class CodeGenerator(private val sema: Sema) {
 
             is Repeat -> {
                 expr.generate();
-                //TODO: inspect type? of expr to be a number?
                 val back = pc
                 body.generate()
                 generateInstruction(LOOP + back, body.closingBrace)
-            }
-
-            is Call -> {
-                val builtin = builtinCommands[target.lexeme]
-                if (builtin != null) {
-                    generateInstruction(builtin, target)
-                } else {
-                    generateInstruction(CALL + id(target.lexeme), target)
-                    val command = sema.command(target.lexeme)!!
-                    if (!done.contains(command)) {
-                        todo.add(command)
-                    }
-                }
             }
 
             is Assign -> {
@@ -145,6 +132,7 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Return -> TODO()
+            is ExpressionStmt -> expr.generate()
         }
     }
 
@@ -179,20 +167,6 @@ class CodeGenerator(private val sema: Sema) {
                 q.generate()
                 generateInstruction(OR, or)
             }
-
-//            is BinaryCondition -> {
-//                lhs.generate()
-//                rhs.generate()
-//                when (operator.kind) {
-//                    TokenKind.EQUAL_EQUAL -> generateInstruction(EQ, operator)
-//                    TokenKind.BANG_EQUAL -> generateInstruction(NEG, operator)
-//                    TokenKind.GREATER_EQUAL -> generateInstruction(GTE, operator)
-//                    TokenKind.LESS_EQUAL -> generateInstruction(LTE, operator)
-//                    TokenKind.GREATER -> generateInstruction(GT, operator)
-//                    TokenKind.LESS -> generateInstruction(LT, operator)
-//                    else -> throw Diagnostic(operator.start, "Invalid binary comparison operator")
-//                }
-//            }
         }
     }
 
@@ -240,6 +214,19 @@ class CodeGenerator(private val sema: Sema) {
 
             is Condition -> {
                 this.generate()
+            }
+
+            is Call -> {
+                val builtin = builtinCommands[target.lexeme]
+                if (builtin != null) {
+                    generateInstruction(builtin, target)
+                } else {
+                    generateInstruction(CALL + id(target.lexeme), target)
+                    val command = sema.command(target.lexeme)!!
+                    if (!done.contains(command)) {
+                        todo.add(command)
+                    }
+                }
             }
         }
     }

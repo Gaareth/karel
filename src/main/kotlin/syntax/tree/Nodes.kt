@@ -9,13 +9,12 @@ sealed class Node
 
 data class Program(val commands: List<Command>) : Node()
 
-data class formalArg(val name: Token, val type: Type) : Node()
-data class actualArg(val expr: Expression) : Node()
+data class FormalArg(val name: Token, val type: Type) : Node()
+data class ActualArg(val expr: Expression) : Node()
 
-data class Command(val void: Token, val identifier: Token, val args: List<formalArg>, val body: Block) : Node()
+data class Command(val type: Token, val identifier: Token, val args: List<FormalArg>, val body: Block) : Node()
 
 data class Block(val openingBrace: Token, val statements: List<Statement>, val closingBrace: Token) : Statement()
-
 
 sealed class Expression : Node()
 data class Binary(val lhs: Expression, val operator: Token, val rhs: Expression) : Expression()
@@ -30,10 +29,12 @@ data class Variable(val name: Token) : Expression()
 
 sealed class Statement : Node()
 
+data class ExpressionStmt(val expr: Expression) : Statement()
+
+
 data class Return(val ret: Token, val expr: Expression) : Statement()
 
-data class Call(val target: Token, val args: List<Expression>) : Statement()
-
+data class Call(val target: Token, val args: List<Expression>) : Expression()
 data class Repeat(val repeat: Token, val expr: Expression, val body: Block) : Statement()
 
 // e1se is a Statement? instead of a Block? in order to support else-if (see Parser.statement)

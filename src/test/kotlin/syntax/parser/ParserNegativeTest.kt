@@ -347,8 +347,9 @@ class ParserNegativeTest {
 
     @Test
     fun statementAsCondition() {
+        // changed error msg?
         assertDiagnostic(
-            "Did you mean", """
+            "Expected", """
         void main() {
             if (turnAround()) {
             }
@@ -419,6 +420,21 @@ class ParserNegativeTest {
     }
 
     @Test
+    fun undeclaredIdentifierFn() {
+        assertDiagnostic(
+            "undeclared", """
+        void main() {
+            let a = 1;
+        }
+        
+        void bar(foo: num) {
+            a = 5;
+        }
+        """
+        )
+    }
+
+    @Test
     fun wrongTypeVar() {
         assertDiagnostic(
             "type", """
@@ -471,7 +487,7 @@ class ParserNegativeTest {
     @Test
     fun wrongReturnType() {
         assertDiagnostic(
-            "wrong", """
+            "Wrong", """
         bool main() {
             return 2;
         }
@@ -479,7 +495,7 @@ class ParserNegativeTest {
         )
 
         assertDiagnostic(
-            "wrong", """
+            "Wrong", """
         num main() {
             return true || false;
         }
@@ -491,17 +507,25 @@ class ParserNegativeTest {
     fun missingReturnType() {
         assertDiagnostic(
             "missing", """
-        bool main() {
-            moveForward();
-        }
+            void main() {
+                foo();
+            }
+            
+            bool foo() {
+                moveForward();
+            }
         """
         )
 
         assertDiagnostic(
             "missing", """
-        num main() {
-            moveForward();
-        }
+             void main() {
+                foo();
+            }
+            
+            num foo() {
+                moveForward();
+            }
         """
         )
     }
@@ -528,13 +552,25 @@ class ParserNegativeTest {
     @Test
     fun fnCallWrongArgs() {
         assertDiagnostic(
-            "wrong", """
-        void isOnBeeper(num n, bool b) {
+            "Expected", """
+            void isOnBeeper(n: num, b: bool) {
                 moveForward(); 
             } 
             
             void main() {
-                isOnBeeper(true, 2);
+                isOnBeeper(true, true);
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "Expected", """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, 2);
             }
         """
         )
@@ -543,8 +579,8 @@ class ParserNegativeTest {
     @Test
     fun fnCallNotEnoughArgs() {
         assertDiagnostic(
-            "enough", """
-        void isOnBeeper(num n, bool b) {
+            "needs", """
+            void isOnBeeper(n: num, b: bool) {
                 moveForward(); 
             } 
             
@@ -558,13 +594,28 @@ class ParserNegativeTest {
     @Test
     fun fnCallTooManyArgs() {
         assertDiagnostic(
-            "enough", """
-        void isOnBeeper(num n, bool b) {
+            "accepts", """
+            void isOnBeeper(n: num, b: bool) {
                 moveForward(); 
             } 
             
             void main() {
                 isOnBeeper(2, true, 2);
+            }
+        """
+        )
+    }
+
+    @Test
+    fun wrongTypeVarFn() {
+        assertDiagnostic(
+            "Don't assign", """
+            num foo() {
+                return 42;
+            } 
+            void main() {
+                let b = true;
+                b = foo();
             }
         """
         )

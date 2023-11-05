@@ -5,7 +5,7 @@ import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 fun Parser.condition(): Expression {
-    return disjunction().assertType(environment, Type.Bool)
+    return disjunction().assertType(this, Type.Bool)
 }
 
 fun Parser.disjunction(): Expression {
@@ -13,7 +13,7 @@ fun Parser.disjunction(): Expression {
     return if (current != BAR_BAR) {
         left
     } else {
-        left.assertOperandsType(environment, token, Type.Bool)
+        left.assertOperandsType(this, token, Type.Bool)
         Disjunction(left, accept(), disjunction())
     }
 }
@@ -23,7 +23,7 @@ fun Parser.conjunction(): Expression {
     return if (current != AMPERSAND_AMPERSAND) {
         left
     } else {
-        left.assertOperandsType(environment, token, Type.Bool)
+        left.assertOperandsType(this, token, Type.Bool)
         Conjunction(left, accept(), conjunction())
     }
 }
