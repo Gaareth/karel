@@ -109,10 +109,14 @@ fun Parser.statement(): Statement = when (current) {
 //        if (currentFunctionReturnType == null) {
 //            token.error("Only use return in")
 //        }
-        Return(accept(),
+        Return(
+            accept(),
             expression()
-                .assertType(this, currentFunctionReturnType!!,
-                    msg = "Wrong return type. Expected %s to be a %s. Is: %s").semicolon())
+                .assertType(
+                    this, currentFunctionReturnType!!,
+                    msg = "Wrong return type. Expected %s to be a %s. Is: %s"
+                ).semicolon()
+        )
     }
 
     REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())

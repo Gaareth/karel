@@ -253,11 +253,13 @@ class ParserTest {
 
     @Test
     fun fnArgsUsage() {
-        lexer = Lexer("""
+        lexer = Lexer(
+            """
             void isOnBeeper(n: num, b: bool) { 
                 let a = n + 2;
             } 
-            """)
+            """
+        )
         parser = Parser(lexer)
         parser.command()
     }
@@ -287,7 +289,8 @@ class ParserTest {
 
     @Test
     fun callTypeCheck() {
-        lexer = Lexer("""
+        lexer = Lexer(
+            """
             bool foo() {
                 return true;
             } 
@@ -295,7 +298,8 @@ class ParserTest {
                 let b = true;
                 b = foo();
             }
-        """)
+        """
+        )
         parser = Parser(lexer)
         parser.program()
     }

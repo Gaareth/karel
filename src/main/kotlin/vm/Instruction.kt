@@ -86,7 +86,7 @@ data class Instruction(val bytecode: Int, val position: Int) {
                 ELSE -> "ELSE %03x".format(target)
                 THEN -> "THEN %03x".format(target)
 
-                LOAD ->  "LOAD %03x".format(target)
+                LOAD -> "LOAD %03x".format(target)
                 STORE -> "STORE %03x".format(target)
 
                 else -> throw IllegalBytecode(bytecode)
@@ -145,7 +145,6 @@ const val LT = 0x0f08
 const val LTE = 0x0f09
 
 const val NEG = 0x0f0a
-
 
 
 val builtinCommands: ChampMap<String, Int> = ChampMap.of(

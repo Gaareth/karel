@@ -1,8 +1,11 @@
 package syntax.parser
 
 import freditor.Levenshtein
-import syntax.lexer.TokenKind.*
-import syntax.tree.*
+import syntax.lexer.TokenKind.AMPERSAND_AMPERSAND
+import syntax.lexer.TokenKind.BAR_BAR
+import syntax.tree.Conjunction
+import syntax.tree.Disjunction
+import syntax.tree.Expression
 
 fun Parser.condition(): Expression {
     return disjunction().assertType(this, Type.Bool)
