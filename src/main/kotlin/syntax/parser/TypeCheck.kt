@@ -46,33 +46,6 @@ fun Expression.assertOperandsType(parser: Parser, op: Token, vararg expected: Ty
     return this.assertType(parser, *expected, msg = "Operands of $op (%s) have to be a %s")
 }
 
-//fun Expression.assertType(env: Environment, sema: Sema, vararg expected: Type, msg: String? = null): Expression {
-//    var msg = msg;
-//    if (msg == null) {
-//        if (this is Binary) {
-//            msg = "Expected Result of %s to be a %s. Is: %s"
-//        } else {
-//            msg = "Expected %s to be a %s. Is: %s"
-//        }
-//
-//    }
-//
-//    val operandType = this.type(env, sema)
-//    if (!expected.contains(operandType)) {
-//        val exprToken = this.token()
-//        exprToken.error(msg.format(exprToken.lexeme, expected.joinToString(separator = ", or "), operandType))
-//    }
-//    return this
-//}
-//
-//fun Expression.assertResultType(env: Environment, sema: Sema, vararg expected: Type): Expression {
-//    return this.assertType(env, sema, *expected, msg = "Result of %s has to be a %s")
-//}
-//
-//fun Expression.assertOperandsType(env: Environment, sema: Sema, op: Token, vararg expected: Type): Expression {
-//    return this.assertType(env, sema, *expected, msg = "Operands of $op (%s) have to be a %s")
-//}
-
 
 fun Expression.token(): Token {
     return when (this) {
@@ -94,7 +67,7 @@ fun Expression.token(): Token {
     }
 }
 
-fun Expression.type(parser: Parser): Type? {
+fun Expression.type(parser: Parser): Type {
     return when (val expr = this) {
         is Binary -> {
             val leftType = expr.lhs.type(parser)

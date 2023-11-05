@@ -5,6 +5,7 @@ import syntax.lexer.Lexer
 import syntax.lexer.Token
 import syntax.lexer.TokenKind
 import syntax.lexer.TokenKind.*
+typealias TypeEnvironment = Environment<String, Type>
 
 class Parser(private val lexer: Lexer) {
     private var previousEnd: Int = 0
@@ -120,6 +121,6 @@ class Parser(private val lexer: Lexer) {
 
 
     val sema = Sema(this)
-    var environment = Environment(null, this)
+    var environment = TypeEnvironment(null)
     var currentFunctionReturnType: Type? = null
 }

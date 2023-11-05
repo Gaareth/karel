@@ -3,6 +3,7 @@ package vm
 import common.Stack
 import common.push
 import logic.World
+import syntax.parser.Environment
 import java.util.concurrent.atomic.AtomicReference
 
 // If "step over" or "step return" do not finish within 1 second,
@@ -17,6 +18,8 @@ const val ENTRY_POINT = 256
 // 0x8000 & 0xf000
 const val MAX_VALUE = 4096;
 
+typealias ValueEnvironment = Environment<Int, StackValue>
+
 class VirtualMachine(
     private val program: List<Instruction>,
     private val atomicWorld: AtomicReference<World>,
@@ -24,7 +27,7 @@ class VirtualMachine(
     private val onMoveOrBeeper: (World) -> Unit = {}
 ) {
 
-    var environment = HashMap<Int, StackValue>();
+    var environment = ValueEnvironment();
 
     interface Callbacks {
         fun onCall(callerPosition: Int, calleePosition: Int) {}
@@ -126,12 +129,12 @@ class VirtualMachine(
     }
 
     private fun Instruction.executeLoad() {
-        push(environment[target]!!)
+        push(environment.get(target)!!)
         ++pc
     }
 
     private fun Instruction.executeStore() {
-        environment[target] = pop()
+        environment.define(target, pop())
         ++pc
     }
 
@@ -146,11 +149,22 @@ class VirtualMachine(
     }
 
     private fun Instruction.executeCall() {
+        var arguments = mutableListOf<StackValue>()
+        while (!stack.isEmpty()) {
+            arguments.add(pop())
+        }
+
         val returnInstruction = program.asSequence().drop(target).find { it.bytecode == RETURN }
         callbacks.onCall(position, returnInstruction!!.position)
         push(ReturnAddress(pc))
         ++callDepth
         pc = target
+
+        for (arg in arguments) {
+            push(arg)
+        }
+
+//        environment = ValueEnvironment()
     }
 
     private fun executeReturn() {

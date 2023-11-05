@@ -4,6 +4,7 @@ import common.Diagnostic
 import syntax.lexer.Token
 import syntax.lexer.TokenKind
 import syntax.parser.Sema
+import syntax.parser.token
 import syntax.tree.*
 import syntax.tree.Number
 
@@ -61,8 +62,13 @@ class CodeGenerator(private val sema: Sema) {
 
     private fun Command.generate() {
         addressOfCommandNameId[id(identifier.lexeme)] = pc
+        for ((i, arg) in args.withIndex()) {
+            variableIds[arg.name.lexeme] = variableIds.size + i + 1 // can't get size while mutating Map
+            generateInstruction(STORE + variableIds[arg.name.lexeme]!!, arg.name)
+        }
         body.generate()
         generateInstruction(RETURN, body.closingBrace)
+        println(this)
     }
 
     private fun prepareForwardJump(token: Token): Int {
@@ -114,6 +120,8 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Repeat -> {
+                println(this)
+                println(variableIds)
                 expr.generate();
                 val back = pc
                 body.generate()
@@ -127,6 +135,8 @@ class CodeGenerator(private val sema: Sema) {
 
             is Declare -> {
                 rhs.generate()
+                println(this)
+                println(variableIds)
                 variableIds[lhs.lexeme] = variableIds.size + 1
                 generateInstruction(STORE + variableIds[lhs.lexeme]!!, let)
             }
@@ -135,6 +145,7 @@ class CodeGenerator(private val sema: Sema) {
                 expr.generate()
                 generateInstruction(RETURN, ret)
             }
+
             is ExpressionStmt -> expr.generate()
         }
     }
@@ -224,11 +235,16 @@ class CodeGenerator(private val sema: Sema) {
                 if (builtin != null) {
                     generateInstruction(builtin, target)
                 } else {
+                    // push args onto stack
+                    for (arg in args) {
+                        arg.generate()
+                    }
                     generateInstruction(CALL + id(target.lexeme), target)
                     val command = sema.command(target.lexeme)!!
                     if (!done.contains(command)) {
                         todo.add(command)
                     }
+
                 }
             }
         }

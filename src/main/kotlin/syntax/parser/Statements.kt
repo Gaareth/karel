@@ -47,7 +47,7 @@ fun Parser.command(): Command = when (current) {
 
 fun Parser.block(args: Map<String, Type>? = null): Block {
     val prevEnvironment = environment;
-    environment = Environment(prevEnvironment, this)
+    environment = Environment(prevEnvironment)
     // insert local variables of block (currently only functions)
     if (args != null) {
         for ((name, type) in args.iterator()) {
@@ -90,6 +90,7 @@ fun Parser.statement(): Statement = when (current) {
 
             Assign(id, value).semicolon()
         } else {
+            // TODO: check for arguments correct type
             ExpressionStmt(sema(Call(id, parenthesized { listArgs(::expression) }).semicolon()))
         }
     }
@@ -101,19 +102,17 @@ fun Parser.statement(): Statement = when (current) {
         val rhs = expression()
 
         val declaration = Declare(let, id, rhs).semicolon();
-        environment.define(id.lexeme, rhs)
+        environment.define(id.lexeme, rhs.type(this))
         declaration
     }
 
     RETURN -> {
-//        if (currentFunctionReturnType == null) {
-//            token.error("Only use return in")
-//        }
         Return(
             accept(),
             expression()
                 .assertType(
-                    this, currentFunctionReturnType!!,
+                    this,
+                    currentFunctionReturnType!!, // should never be null, as command is on of the first rules
                     msg = "Wrong return type. Expected %s to be a %s. Is: %s"
                 ).semicolon()
         )
