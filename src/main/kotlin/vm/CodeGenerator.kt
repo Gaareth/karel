@@ -4,7 +4,6 @@ import common.Diagnostic
 import syntax.lexer.Token
 import syntax.lexer.TokenKind
 import syntax.parser.Sema
-import syntax.parser.token
 import syntax.tree.*
 import syntax.tree.Number
 
@@ -15,6 +14,7 @@ class CodeGenerator(private val sema: Sema) {
 
     private val program: MutableList<Instruction> = createInstructionBuffer()
     private var variableIds = HashMap<String, Int>()
+    private var currentCommandName: String? = null
 
     private val pc: Int
         get() = program.size
@@ -60,11 +60,18 @@ class CodeGenerator(private val sema: Sema) {
     private val todo = ArrayDeque<Command>()
     private val done = HashSet<Command>()
 
+
+    private fun genVarName(name: String): String {
+        return name + "_" + currentCommandName
+    }
+
     private fun Command.generate() {
+        currentCommandName = this.identifier.lexeme
+
         addressOfCommandNameId[id(identifier.lexeme)] = pc
         for ((i, arg) in args.withIndex()) {
-            variableIds[arg.name.lexeme] = variableIds.size + i + 1 // can't get size while mutating Map
-            generateInstruction(STORE + variableIds[arg.name.lexeme]!!, arg.name)
+            variableIds[genVarName(arg.name.lexeme)] = variableIds.size + i + 1 // can't get size while mutating Map
+            generateInstruction(STORE + variableIds[genVarName(arg.name.lexeme)]!!, arg.name)
         }
         body.generate()
         generateInstruction(RETURN, body.closingBrace)
@@ -130,15 +137,15 @@ class CodeGenerator(private val sema: Sema) {
 
             is Assign -> {
                 rhs.generate()
-                generateInstruction(STORE + variableIds[lhs.lexeme]!!, lhs)
+                generateInstruction(STORE + variableIds[genVarName(lhs.lexeme)]!!, lhs)
             }
 
             is Declare -> {
                 rhs.generate()
                 println(this)
                 println(variableIds)
-                variableIds[lhs.lexeme] = variableIds.size + 1
-                generateInstruction(STORE + variableIds[lhs.lexeme]!!, let)
+                variableIds[genVarName(lhs.lexeme)] = variableIds.size + 1
+                generateInstruction(STORE + variableIds[genVarName(lhs.lexeme)]!!, let)
             }
 
             is Return -> {
@@ -187,7 +194,8 @@ class CodeGenerator(private val sema: Sema) {
     private fun Expression.generate() {
         when (this) {
             is Variable -> {
-                generateInstruction(LOAD + variableIds[name.lexeme]!!, name)
+                println(this)
+                generateInstruction(LOAD + variableIds[genVarName(name.lexeme)]!!, name)
             }
 
             is Number -> {
@@ -235,9 +243,14 @@ class CodeGenerator(private val sema: Sema) {
                 if (builtin != null) {
                     generateInstruction(builtin, target)
                 } else {
-                    // push args onto stack
-                    for (arg in args) {
-                        arg.generate()
+                    if (args.isNotEmpty()) {
+                        // push args onto stack
+                        generateInstruction(ARGS_START, target)
+
+                        for (arg in args) {
+                            arg.generate()
+                        }
+                        generateInstruction(ARGS_END, target)
                     }
                     generateInstruction(CALL + id(target.lexeme), target)
                     val command = sema.command(target.lexeme)!!

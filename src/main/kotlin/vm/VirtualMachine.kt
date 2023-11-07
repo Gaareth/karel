@@ -150,8 +150,17 @@ class VirtualMachine(
 
     private fun Instruction.executeCall() {
         var arguments = mutableListOf<StackValue>()
-        while (!stack.isEmpty()) {
-            arguments.add(pop())
+        var c = 1;
+        if (program[pc - 1].bytecode == ARGS_END) {
+            while (!stack.isEmpty()) {
+                c += 1
+
+                if (program[pc - c].bytecode == ARGS_START) {
+                    break
+                }
+
+                arguments.add(pop())
+            }
         }
 
         val returnInstruction = program.asSequence().drop(target).find { it.bytecode == RETURN }
@@ -204,6 +213,9 @@ class VirtualMachine(
             AND -> push((pop() === Bool.TRUE) and (pop() === Bool.TRUE))
             OR -> push((pop() === Bool.TRUE) or (pop() === Bool.TRUE))
             XOR -> push((pop() === Bool.TRUE) xor (pop() === Bool.TRUE))
+
+            ARGS_START -> {} //noop
+            ARGS_END -> {} //noop
 
             ADD -> {
                 val lhs = pop() as Num
