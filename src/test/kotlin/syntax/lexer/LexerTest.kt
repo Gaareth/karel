@@ -118,12 +118,14 @@ class LexerTest {
 
     @Test
     fun separators() {
-        lexer = Lexer("();{}")
+        lexer = Lexer("();{}:,")
         assertToken(OPENING_PAREN)
         assertToken(CLOSING_PAREN)
         assertToken(SEMICOLON)
         assertToken(OPENING_BRACE)
         assertToken(CLOSING_BRACE)
+        assertToken(COLON)
+        assertToken(COMMA)
     }
 
     @Test
@@ -206,5 +208,14 @@ class LexerTest {
         assertToken(ASSIGN)
         assertToken(NUMBER)
         assertToken(SEMICOLON)
+    }
+
+    @Test
+    fun types() {
+        lexer = Lexer("bool num void")
+
+        assertToken(BOOL)
+        assertToken(NUM)
+        assertToken(VOID)
     }
 }

@@ -347,8 +347,9 @@ class ParserNegativeTest {
 
     @Test
     fun statementAsCondition() {
+        // changed error msg?
         assertDiagnostic(
-            "Did you mean", """
+            "Expected", """
         void main() {
             if (turnAround()) {
             }
@@ -419,6 +420,21 @@ class ParserNegativeTest {
     }
 
     @Test
+    fun undeclaredIdentifierFn() {
+        assertDiagnostic(
+            "undeclared", """
+        void main() {
+            let a = 1;
+        }
+        
+        void bar(foo: num) {
+            a = 5;
+        }
+        """
+        )
+    }
+
+    @Test
     fun wrongTypeVar() {
         assertDiagnostic(
             "type", """
@@ -459,11 +475,150 @@ class ParserNegativeTest {
 
     @Test
     fun minusBool() {
-         assertDiagnostic(
+        assertDiagnostic(
             "Number", """
         void main() {
             let a = -true;
         }
+        """
+        )
+    }
+
+    @Test
+    fun wrongReturnType() {
+        assertDiagnostic(
+            "Wrong", """
+        bool main() {
+            return 2;
+        }
+        """
+        )
+
+        assertDiagnostic(
+            "Wrong", """
+        num main() {
+            return true || false;
+        }
+        """
+        )
+    }
+
+    // TODO: implement this
+//    @Test
+//    fun missingReturnType() {
+//        assertDiagnostic(
+//            "missing", """
+//            void main() {
+//                foo();
+//            }
+//
+//            bool foo() {
+//                moveForward();
+//            }
+//        """
+//        )
+//
+//        assertDiagnostic(
+//            "missing", """
+//             void main() {
+//                foo();
+//            }
+//
+//            num foo() {
+//                moveForward();
+//            }
+//        """
+//        )
+//    }
+
+    @Test
+    fun noVoidReturn() {
+        assertDiagnostic(
+            "return", """
+        void main() {
+            return 2042;
+        }
+        """
+        )
+
+        assertDiagnostic(
+            "return", """
+        void main() {
+            return false;
+        }
+        """
+        )
+    }
+
+    @Test
+    fun fnCallWrongArgs() {
+        assertDiagnostic(
+            "Expected", """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(true, true);
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "Expected", """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, 2);
+            }
+        """
+        )
+    }
+
+
+    @Test
+    fun fnCallNotEnoughArgs() {
+        assertDiagnostic(
+            "Expected", """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(true);
+            }
+        """
+        )
+    }
+
+    @Test
+    fun fnCallTooManyArgs() {
+        assertDiagnostic(
+            "accepts", """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, true, 2);
+            }
+        """
+        )
+    }
+
+    @Test
+    fun wrongTypeVarFn() {
+        assertDiagnostic(
+            "Don't assign", """
+            num foo() {
+                return 42;
+            } 
+            void main() {
+                let b = true;
+                b = foo();
+            }
         """
         )
     }

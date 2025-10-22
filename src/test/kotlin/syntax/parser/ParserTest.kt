@@ -203,7 +203,7 @@ class ParserTest {
                         a = c;
                     }
                 }
-            """.trimIndent()
+            """
         )
         parser = Parser(lexer)
         parser.block()
@@ -223,5 +223,84 @@ class ParserTest {
         parser = Parser(lexer)
         parser.statement()
         parser.statement()
+    }
+
+    @Test
+    fun fnReturn() {
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.command()
+
+        lexer = Lexer("bool isOnBeeper() { return true; } ")
+        parser = Parser(lexer)
+        parser.command()
+
+        lexer = Lexer("num isOnBeeper() { return 1; } ")
+        parser = Parser(lexer)
+        parser.command()
+    }
+
+    @Test
+    fun fnArgs() {
+        lexer = Lexer("void isOnBeeper(n: num, b: bool) { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.command()
+
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.command()
+    }
+
+    @Test
+    fun fnArgsUsage() {
+        lexer = Lexer(
+            """
+            void isOnBeeper(n: num, b: bool) { 
+                let a = n + 2;
+            } 
+            """
+        )
+        parser = Parser(lexer)
+        parser.command()
+    }
+
+    @Test
+    fun fnCall() {
+        lexer = Lexer(
+            """
+            void isOnBeeper(n: num, b: bool) {
+                moveForward(); 
+            } 
+            
+            void main() {
+                isOnBeeper(2, true);
+            }
+            
+            """
+        )
+        parser = Parser(lexer)
+        parser.command()
+
+        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        parser = Parser(lexer)
+        parser.command()
+    }
+
+
+    @Test
+    fun callTypeCheck() {
+        lexer = Lexer(
+            """
+            bool foo() {
+                return true;
+            } 
+            void main() {
+                let b = true;
+                b = foo();
+            }
+        """
+        )
+        parser = Parser(lexer)
+        parser.program()
     }
 }

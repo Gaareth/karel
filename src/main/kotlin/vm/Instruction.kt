@@ -75,6 +75,8 @@ data class Instruction(val bytecode: Int, val position: Int) {
 
             FALSE -> "FALSE"
             TRUE -> "TRUE"
+            ARGS_START -> "ARGS_START"
+            ARGS_END -> "ARGS_END"
 
             else -> when (category) {
                 PUSH -> "PUSH %03x".format(target)
@@ -86,7 +88,7 @@ data class Instruction(val bytecode: Int, val position: Int) {
                 ELSE -> "ELSE %03x".format(target)
                 THEN -> "THEN %03x".format(target)
 
-                LOAD ->  "LOAD %03x".format(target)
+                LOAD -> "LOAD %03x".format(target)
                 STORE -> "STORE %03x".format(target)
 
                 else -> throw IllegalBytecode(bytecode)
@@ -117,6 +119,9 @@ const val XOR = 0x000f
 
 const val NORM = 0x0000
 
+const val ARGS_START = 0x0010 // marks the next pushes as parameter args
+const val ARGS_END = 0x0011 // marks the previous pushes as parameter args
+
 // >= 0x1000? -> category
 const val PUSH = 0x8000
 const val FALSE = PUSH - 1
@@ -145,7 +150,6 @@ const val LT = 0x0f08
 const val LTE = 0x0f09
 
 const val NEG = 0x0f0a
-
 
 
 val builtinCommands: ChampMap<String, Int> = ChampMap.of(

@@ -8,11 +8,18 @@ import syntax.tree.Number
 
 enum class Type {
     Number,
-    Bool
+    Bool,
+    Void
 }
 
+fun Token.toType(): Type = when (this.kind) {
+    TokenKind.NUM -> Type.Number
+    TokenKind.BOOL -> Type.Bool
+    TokenKind.VOID -> Type.Void
+    else -> throw Exception("Illegal Type")
+}
 
-fun Expression.assertType(env: Environment, vararg expected: Type, msg: String? = null): Expression {
+fun Expression.assertType(parser: Parser, vararg expected: Type, msg: String? = null): Expression {
     var msg = msg;
     if (msg == null) {
         if (this is Binary) {
@@ -23,7 +30,7 @@ fun Expression.assertType(env: Environment, vararg expected: Type, msg: String? 
 
     }
 
-    val operandType = this.type(env)
+    val operandType = this.type(parser)
     if (!expected.contains(operandType)) {
         val exprToken = this.token()
         exprToken.error(msg.format(exprToken.lexeme, expected.joinToString(separator = ", or "), operandType))
@@ -31,12 +38,12 @@ fun Expression.assertType(env: Environment, vararg expected: Type, msg: String? 
     return this
 }
 
-fun Expression.assertResultType(env: Environment, vararg expected: Type): Expression {
-    return this.assertType(env, *expected, msg = "Result of %s has to be a %s")
+fun Expression.assertResultType(parser: Parser, vararg expected: Type): Expression {
+    return this.assertType(parser, *expected, msg = "Result of %s has to be a %s")
 }
 
-fun Expression.assertOperandsType(env: Environment, op: Token, vararg expected: Type): Expression {
-    return this.assertType(env, *expected, msg = "Operands of $op (%s) have to be a %s")
+fun Expression.assertOperandsType(parser: Parser, op: Token, vararg expected: Type): Expression {
+    return this.assertType(parser, *expected, msg = "Operands of $op (%s) have to be a %s")
 }
 
 
@@ -56,14 +63,15 @@ fun Expression.token(): Token {
         is Number -> this.token
         is Unary -> this.operator
         is Variable -> this.name
+        is Call -> this.target
     }
 }
 
-fun Expression.type(env: Environment): Type {
+fun Expression.type(parser: Parser): Type {
     return when (val expr = this) {
         is Binary -> {
-            val leftType = expr.lhs.type(env)
-            val rightType = expr.rhs.type(env)
+            val leftType = expr.lhs.type(parser)
+            val rightType = expr.rhs.type(parser)
 
             if (leftType != rightType) {
                 expr.operator.error("${expr.operator.lexeme} requires both operands to be of the same type")
@@ -85,6 +93,20 @@ fun Expression.type(env: Environment): Type {
         -> Type.Bool
 
         is Number, is Unary -> Type.Number
-        is Variable -> env.get(expr.name.lexeme)!!
+        is Variable -> {
+            val type = parser.environment.get(expr.name.lexeme);
+            return type!!
+        }
+        is Call -> {
+            if (PREDICATES.contains(expr.target.lexeme)) {
+                Type.Bool
+            } else if (BUILTIN_COMMANDS.contains(expr.target.lexeme)) {
+                Type.Void
+            } else {
+                val command = parser.sema.command(expr.target.lexeme)
+                    ?: expr.target.error("Calling commands (as expression) before declaring them, currently not supported")
+                command.type.toType()
+            }
+        }
     }
 }

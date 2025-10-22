@@ -5,9 +5,9 @@ import syntax.lexer.Lexer
 import syntax.lexer.Token
 import syntax.lexer.TokenKind
 import syntax.lexer.TokenKind.*
+typealias TypeEnvironment = Environment<String, Type>
 
 class Parser(private val lexer: Lexer) {
-    var environment = Environment()
     private var previousEnd: Int = 0
 
     var previous: Token? = null;
@@ -38,16 +38,16 @@ class Parser(private val lexer: Lexer) {
         return result
     }
 
-    fun expect(expected: TokenKind): Token {
-        if (current != expected)
-            throw Diagnostic(previousEnd, "missing $expected")
+    fun expect(vararg expected: TokenKind): Token {
+        if (!match(*expected))
+            throw Diagnostic(previousEnd, "missing ${expected.joinToString(separator = ", or ")}")
         return accept()
     }
 
     fun match(vararg tokens: TokenKind): Boolean {
         for (token in tokens) {
             if (token == current) {
-                return  true
+                return true
             }
         }
         return false
@@ -92,6 +92,17 @@ class Parser(private val lexer: Lexer) {
         return list0While({ current != terminator }, parse)
     }
 
+    inline fun <T> listArgs(parse: () -> T): List<T> {
+        val args = mutableListOf<T>()
+        while (current != CLOSING_PAREN) {
+            args.add(parse())
+            if (current == COMMA) {
+                accept()
+            }
+        }
+        return args
+    }
+
     inline fun <T> parenthesized(parse: () -> T): T {
         expect(OPENING_PAREN)
         val result = parse()
@@ -108,5 +119,8 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    val sema = Sema()
+
+    val sema = Sema(this)
+    var environment = TypeEnvironment(null)
+    var currentFunctionReturnType: Type? = null
 }

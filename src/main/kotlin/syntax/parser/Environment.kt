@@ -1,16 +1,13 @@
 package syntax.parser
 
-import syntax.tree.Expression
+class Environment<K, V>(private val enclosing: Environment<K, V>? = null) {
+    private val values = HashMap<K, V?>()
 
-class Environment(private val enclosing: Environment? = null) {
-    private val values = HashMap<String, Type>()
-//    private val enclosing: Environment? = null
-
-    fun define(name: String, value: Expression) {
-        values[name] = value.type(this)
+    fun define(name: K, type: V) {
+        values[name] = type
     }
 
-    fun assign(name: String, value: Type): Unit? {
+    fun assign(name: K, value: V): Unit? {
         if (values.contains(name)) {
             values[name] = value
             return Unit // OK
@@ -18,10 +15,17 @@ class Environment(private val enclosing: Environment? = null) {
         return enclosing?.assign(name, value)
     }
 
-    fun get(name: String): Type? {
+    fun get(name: K): V? {
         if (values.contains(name)) {
-            return values[name]!!
+            return values[name]
         }
         return enclosing?.get(name)
+    }
+
+    fun printLines() {
+        println("Size of environment: $values.size")
+        for ((key, value) in values) {
+            println("$key = $value")
+        }
     }
 }

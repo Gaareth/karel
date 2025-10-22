@@ -4,13 +4,26 @@ import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 fun Parser.program(): Program {
-    if (current != VOID) token.error("expected void")
+    if (!match(VOID, BOOL, NUM)) token.error("expected void, bool, num")
 
     return sema(Program(list1Until(END_OF_INPUT, ::command)))
 }
 
 fun Parser.command(): Command = when (current) {
-    VOID -> sema(Command(accept(), expect(IDENTIFIER).emptyParens(), block()))
+    VOID, NUM, BOOL -> {
+        val type = accept()
+        val id = expect(IDENTIFIER)
+        val args = parenthesized { listArgs(::formalArg) }
+        currentFunctionReturnType = type.toType()
+        sema(
+            Command(
+                type,
+                id,
+                args,
+                block(args.associateBy({ it.name.lexeme }, { it.type }))
+            )
+        )
+    }
 
     CLOSING_BRACE -> token.error("too many closing braces")
 
@@ -28,14 +41,35 @@ fun Parser.command(): Command = when (current) {
     else -> token.error("expected void")
 }
 
-fun Parser.block(): Block {
+//fun Parser.call(): Call {
+//
+//}
+
+fun Parser.block(args: Map<String, Type>? = null): Block {
     val prevEnvironment = environment;
     environment = Environment(prevEnvironment)
+    // insert local variables of block (currently only functions)
+    if (args != null) {
+        for ((name, type) in args.iterator()) {
+            environment.define(name, type)
+        }
+    }
     val block = Block(expect(OPENING_BRACE), list0Until(CLOSING_BRACE, ::statement), accept())
     environment = prevEnvironment
     return block
 }
 
+fun Parser.formalArg(): FormalArg {
+    val arg = expect(IDENTIFIER)
+    expect(COLON)
+    val type = expect(BOOL, NUM, VOID)
+    return FormalArg(arg, type.toType())
+}
+
+fun Parser.actualArg(): ActualArg {
+    val expr = expression().assertType(this, Type.Bool, Type.Number)
+    return syntax.tree.ActualArg(expr)
+}
 
 fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> {
@@ -44,20 +78,20 @@ fun Parser.statement(): Statement = when (current) {
         if (curr.kind == ASSIGN) {
             next();
             val value = expression();
-            val newType = value.type(environment)
+            val newType = value.type(this)
             val storedType = environment.get(id.lexeme)
-            val ok = environment.assign(id.lexeme, value.type(environment))
+            val ok = environment.assign(id.lexeme, value.type(this))
 
             if (ok == null) {
                 curr.error("Can't assign to undeclared variable '${id.lexeme}'")
             } else if (storedType != newType) {
-                curr.error("${id.lexeme} is of type $storedType. Don't assign ${value.token().lexeme} (a $newType) to it. Use 'let ${id.lexeme} = ${value.token().lexeme}'")
+                curr.error("${id.lexeme} is of type $storedType. Don't assign ${value.token().lexeme} (a $newType) to it.")
             }
-
 
             Assign(id, value).semicolon()
         } else {
-            sema(Call(id.emptyParens()).semicolon())
+            // TODO: check for arguments correct type
+            ExpressionStmt(sema(Call(id, parenthesized { listArgs(::expression) }).semicolon()))
         }
     }
 
@@ -68,17 +102,27 @@ fun Parser.statement(): Statement = when (current) {
         val rhs = expression()
 
         val declaration = Declare(let, id, rhs).semicolon();
-        environment.define(id.lexeme, rhs)
+        environment.define(id.lexeme, rhs.type(this))
         declaration
     }
 
-//    IDENTIFIER -> sema(Call(accept().emptyParens()).semicolon())
+    RETURN -> {
+        Return(
+            accept(),
+            expression()
+                .assertType(
+                    this,
+                    currentFunctionReturnType!!, // should never be null, as command is on of the first rules
+                    msg = "Wrong return type. Expected %s to be a %s. Is: %s"
+                ).semicolon()
+        )
+    }
 
-    REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())
+    REPEAT -> Repeat(accept(), parenthesized(::repeatExpression).assertOperandsType(this, token, Type.Number), block())
 
-    WHILE -> While(accept(), parenthesized(::condition), block())
+    WHILE -> While(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block())
 
-    IF -> IfThenElse(accept(), parenthesized(::condition), block(), optional(ELSE) {
+    IF -> IfThenElse(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block(), optional(ELSE) {
         when (current) {
             OPENING_BRACE -> block()
 
@@ -87,11 +131,6 @@ fun Parser.statement(): Statement = when (current) {
             else -> token.error("else must be followed by { or if")
         }
     })
-
-//    ASSIGN -> {
-//        println(token);
-//        token.error("AAA");
-//    }
 
     VOID -> {
         val void = accept()
