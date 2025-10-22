@@ -31,7 +31,9 @@ class Sema(val parser: Parser) {
         val command = commands[call.target.lexeme]
         if (command != null) {
             for ((i, arg) in call.args.withIndex()) {
-                arg.assertType(parser, command.args[i].type)
+                if (command.args.size > i) {
+                    arg.assertType(parser, command.args[i].type)
+                }
             }
         } else {
             // should be handled by the sema invoke of Program at the end
