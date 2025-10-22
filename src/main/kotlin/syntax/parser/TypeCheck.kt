@@ -93,7 +93,10 @@ fun Expression.type(parser: Parser): Type {
         -> Type.Bool
 
         is Number, is Unary -> Type.Number
-        is Variable -> parser.environment.get(expr.name.lexeme)!!
+        is Variable -> {
+            val type = parser.environment.get(expr.name.lexeme);
+            return type!!
+        }
         is Call -> {
             if (PREDICATES.contains(expr.target.lexeme)) {
                 Type.Bool

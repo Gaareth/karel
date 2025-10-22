@@ -33,7 +33,7 @@ object Flexer : freditor.Flexer() {
         .set("09", NUMBER_HEAD)
         .set("AZ__az", IDENTIFIER_HEAD)
         .build()
-        .verbatim(IDENTIFIER_TAIL, "else", "false", "if", "repeat", "true", "void", "while", "let")
+        .verbatim(IDENTIFIER_TAIL, "else", "false", "if", "repeat", "true", "void", "while", "let", "num", "bool", "return")
         .verbatim(EMPTY, "!", "&&", ";", "||")
         .setDefault(ERROR)
 
@@ -47,8 +47,10 @@ object Flexer : freditor.Flexer() {
         .put(START.read("/", "&", "|"), 0x808080)
         .put(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
         .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
-        .put(START.read("else", "false", "if", "repeat", "true", "while", "let"), 0x0000ff)
+        .put(START.read("else", "false", "if", "repeat", "true", "while", "let", "return"), 0x0000ff)
         .put(START.read("void"), 0x008080)
+        .put(START.read("num"), 0x008080)
+        .put(START.read("bool"), 0x008080)
         .put(START.read("(", ")", "{", "}"), 0xff0000)
         .put(START.read("!", "&&", "||"), 0x804040)
 }

@@ -21,4 +21,11 @@ class Environment<K, V>(private val enclosing: Environment<K, V>? = null) {
         }
         return enclosing?.get(name)
     }
+
+    fun printLines() {
+        println("Size of environment: $values.size")
+        for ((key, value) in values) {
+            println("$key = $value")
+        }
+    }
 }

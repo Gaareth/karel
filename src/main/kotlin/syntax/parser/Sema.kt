@@ -27,6 +27,16 @@ class Sema(val parser: Parser) {
         if (!BUILTIN_COMMANDS.contains(call.target.lexeme)) {
             calls.add(call)
         }
+        // type check the function call
+        val command = commands[call.target.lexeme]
+        if (command != null) {
+            for ((i, arg) in call.args.withIndex()) {
+                arg.assertType(parser, command.args[i].type)
+            }
+        } else {
+            // should be handled by the sema invoke of Program at the end
+        }
+
         return call
     }
 
@@ -53,9 +63,7 @@ class Sema(val parser: Parser) {
                     call.target.error("${command.identifier.lexeme} needs ${command.args.size} arguments. You passed ${call.args.size}")
                 }
 
-                for ((i, arg) in call.args.withIndex()) {
-                    arg.assertType(parser, command.args[i].type)
-                }
+                // if type checking here, the environments will not match anymore. Need to type check at the actual call
             }
         }
         return program

@@ -118,11 +118,11 @@ fun Parser.statement(): Statement = when (current) {
         )
     }
 
-    REPEAT -> Repeat(accept(), parenthesized(::repeatExpression), block())
+    REPEAT -> Repeat(accept(), parenthesized(::repeatExpression).assertOperandsType(this, token, Type.Number), block())
 
-    WHILE -> While(accept(), parenthesized(::condition), block())
+    WHILE -> While(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block())
 
-    IF -> IfThenElse(accept(), parenthesized(::condition), block(), optional(ELSE) {
+    IF -> IfThenElse(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block(), optional(ELSE) {
         when (current) {
             OPENING_BRACE -> block()
 
