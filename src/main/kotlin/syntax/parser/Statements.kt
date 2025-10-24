@@ -41,10 +41,6 @@ fun Parser.command(): Command = when (current) {
     else -> token.error("expected void")
 }
 
-//fun Parser.call(): Call {
-//
-//}
-
 fun Parser.block(args: Map<String, Type>? = null): Block {
     val prevEnvironment = environment;
     environment = Environment(prevEnvironment)
@@ -66,10 +62,6 @@ fun Parser.formalArg(): FormalArg {
     return FormalArg(arg, type.toType())
 }
 
-fun Parser.actualArg(): ActualArg {
-    val expr = expression().assertType(this, Type.Bool, Type.Number)
-    return syntax.tree.ActualArg(expr)
-}
 
 fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> {

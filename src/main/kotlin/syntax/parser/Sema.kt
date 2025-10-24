@@ -1,9 +1,8 @@
 package syntax.parser
 
 import freditor.Levenshtein
-import syntax.tree.Call
-import syntax.tree.Command
-import syntax.tree.Program
+import syntax.lexer.TokenKind
+import syntax.tree.*
 
 val BUILTIN_COMMANDS = setOf("moveForward", "turnLeft", "turnAround", "turnRight", "pickBeeper", "dropBeeper")
 
@@ -42,7 +41,7 @@ class Sema(val parser: Parser) {
         return call
     }
 
-    operator fun invoke(program: Program): Program {
+    private fun typeCheckCalls() {
         for (call in calls) {
             val command = commands[call.target.lexeme]
 
@@ -68,6 +67,74 @@ class Sema(val parser: Parser) {
                 // if type checking here, the environments will not match anymore. Need to type check at the actual call
             }
         }
+    }
+
+    private fun returnInIfAndElse(statement: IfThenElse): Boolean {
+        val foundInThen = findMissingReturns(statement.th3n);
+        val foundInElse = when (statement.e1se) {
+            is Block -> findMissingReturns(statement.e1se);
+            is IfThenElse -> returnInIfAndElse(statement.e1se)
+            null -> false
+            else -> error("Impossible")
+        }
+
+        return foundInThen && foundInElse
+    }
+
+    private fun findMissingReturns(block: Block): Boolean {
+        var returnFound = false;
+        var returnInAllBranches = false;
+
+        for (statement in block.statements) {
+            when (statement) {
+                is Block -> {
+                    return findMissingReturns(statement)
+                }
+
+                is IfThenElse -> {
+                    if (returnInIfAndElse(statement)) {
+                        return true
+                    }
+                }
+
+                is Repeat -> {
+                    // if is not zero and constant and includes return then return true
+//                    if (statement.)
+
+//                    if (findMissingReturns(statement.body)) {
+//                        statement.body.closingBrace.error("Returns inside repeat blocks are currently not allowed")
+//                    }
+                }
+
+                is Return -> {
+                    return true;
+                }
+
+                is While -> {
+//                    return findMissingReturns(statement.body)
+                }
+
+                else -> continue
+            }
+        }
+
+        return returnFound
+    }
+
+    operator fun invoke(program: Program): Program {
+        typeCheckCalls();
+
+        for (command in program.commands) {
+            if (command.type.kind == TokenKind.VOID) {
+                continue
+            }
+
+            val returnFound = findMissingReturns(command.body)
+            if (!returnFound) {
+                command.body.closingBrace.error("missing return")
+            }
+        }
+
         return program
     }
 }

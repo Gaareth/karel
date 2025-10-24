@@ -71,7 +71,9 @@ class CodeGenerator(private val sema: Sema) {
         addressOfCommandNameId[id(identifier.lexeme)] = pc
         for ((i, arg) in args.withIndex()) {
             variableIds[genVarName(arg.name.lexeme)] = variableIds.size + i + 1 // can't get size while mutating Map
-            generateInstruction(STORE + variableIds[genVarName(arg.name.lexeme)]!!, arg.name) // store variables
+
+            // store passed variables (which are on the stack and then popped) into local environment
+            generateInstruction(STORE + variableIds[genVarName(arg.name.lexeme)]!!, arg.name)
         }
         body.generate()
         generateInstruction(RETURN, body.closingBrace)
@@ -239,12 +241,10 @@ class CodeGenerator(private val sema: Sema) {
                 } else {
                     if (args.isNotEmpty()) {
                         // push args onto stack
-                        generateInstruction(ARGS_START, target)
-
                         for (arg in args) {
                             arg.generate()
                         }
-                        generateInstruction(ARGS_END, target)
+                        generateInstruction(ARGS_NUM + args.size, target)
                     }
                     generateInstruction(CALL + id(target.lexeme), target)
                     val command = sema.command(target.lexeme)!!

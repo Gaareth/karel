@@ -112,6 +112,10 @@ class VirtualMachine(
                 ELSE -> pc = if (pop() === Bool.FALSE) target else pc + 1
                 THEN -> pc = if (pop() === Bool.TRUE) target else pc + 1
 
+                ARGS_NUM -> {
+                     ++pc
+                } // noop
+
                 else -> throw IllegalBytecode(bytecode)
             }
         }
@@ -158,18 +162,11 @@ class VirtualMachine(
         // E.g. ARGS_SIZE + number. SO i can easier get the number of args here
 
         //if command has args
-        if (program[pc - 1].bytecode == ARGS_END) {
-            // pop any args from the stack,
-            while (!stack.isEmpty()) {
-                c += 1
-
-                if (program[pc - c].bytecode == ARGS_START) {
-                    break
-                }
-                // only push instructions are actual args
-                if (program[pc - c].category == PUSH) {
-                    arguments.add(pop())
-                }
+        if (program[pc - 1].category == ARGS_NUM) {
+            // pop args from the stack
+            val numArgs = program[pc - 1].target
+            for (i in 1..numArgs) {
+                arguments.add(pop())
             }
         }
 
@@ -225,8 +222,7 @@ class VirtualMachine(
             OR -> push((pop() === Bool.TRUE) or (pop() === Bool.TRUE))
             XOR -> push((pop() === Bool.TRUE) xor (pop() === Bool.TRUE))
 
-            ARGS_START -> {} //noop
-            ARGS_END -> {} //noop
+            ARGS_NUM -> {} //noop
 
             ADD -> {
                 val lhs = pop() as Num
