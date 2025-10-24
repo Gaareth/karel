@@ -116,7 +116,7 @@ fun Parser.primary(): Expression = when (current) {
 
                 else -> {
                     val token = accept();
-                    when (val storedExpr = environment.get(token.lexeme)) {
+                    when (environment.get(token.lexeme)) {
                         // does not work like this. E.g. var gets altered later on and is used in a loop
 //                        // inline optimization?
 //                        // value is known at compile time?
@@ -127,7 +127,7 @@ fun Parser.primary(): Expression = when (current) {
                         null -> {
                             throw Diagnostic(
                                 token.start,
-                                "${token.lexeme} is a undeclared variable. Use 'let ${token.lexeme} = ???'!"
+                                "${token.lexeme} is a undeclared variable. Declare using 'let ${token.lexeme} = ???' or use function parameters"
                             )
                         }
 

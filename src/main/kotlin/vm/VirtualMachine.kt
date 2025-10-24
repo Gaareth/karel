@@ -149,17 +149,27 @@ class VirtualMachine(
     }
 
     private fun Instruction.executeCall() {
-        var arguments = mutableListOf<StackValue>()
+        // i think this makes sure that the ReturnAddress is always at the bottom of the stack
+
+        val arguments = mutableListOf<StackValue>()
         var c = 1;
+
+        // ARGS_START and ARGS_END are necessary to know how many args, there are. However, another opcode might be simpler
+        // E.g. ARGS_SIZE + number. SO i can easier get the number of args here
+
+        //if command has args
         if (program[pc - 1].bytecode == ARGS_END) {
+            // pop any args from the stack,
             while (!stack.isEmpty()) {
                 c += 1
 
                 if (program[pc - c].bytecode == ARGS_START) {
                     break
                 }
-
-                arguments.add(pop())
+                // only push instructions are actual args
+                if (program[pc - c].category == PUSH) {
+                    arguments.add(pop())
+                }
             }
         }
 
@@ -169,6 +179,7 @@ class VirtualMachine(
         ++callDepth
         pc = target
 
+        // push args back on top of return address
         for (arg in arguments) {
             push(arg)
         }

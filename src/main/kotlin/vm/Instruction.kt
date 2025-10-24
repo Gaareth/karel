@@ -37,6 +37,7 @@ data class Instruction(val bytecode: Int, val position: Int) {
         }
     }
 
+
     fun mnemonic(): String {
         return when (bytecode) {
             RETURN -> "RET"

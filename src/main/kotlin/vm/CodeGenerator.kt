@@ -71,11 +71,10 @@ class CodeGenerator(private val sema: Sema) {
         addressOfCommandNameId[id(identifier.lexeme)] = pc
         for ((i, arg) in args.withIndex()) {
             variableIds[genVarName(arg.name.lexeme)] = variableIds.size + i + 1 // can't get size while mutating Map
-            generateInstruction(STORE + variableIds[genVarName(arg.name.lexeme)]!!, arg.name)
+            generateInstruction(STORE + variableIds[genVarName(arg.name.lexeme)]!!, arg.name) // store variables
         }
         body.generate()
         generateInstruction(RETURN, body.closingBrace)
-        println(this)
     }
 
     private fun prepareForwardJump(token: Token): Int {
@@ -127,8 +126,6 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Repeat -> {
-                println(this)
-                println(variableIds)
                 expr.generate();
                 val back = pc
                 body.generate()
@@ -142,8 +139,6 @@ class CodeGenerator(private val sema: Sema) {
 
             is Declare -> {
                 rhs.generate()
-                println(this)
-                println(variableIds)
                 variableIds[genVarName(lhs.lexeme)] = variableIds.size + 1
                 generateInstruction(STORE + variableIds[genVarName(lhs.lexeme)]!!, let)
             }
@@ -194,7 +189,6 @@ class CodeGenerator(private val sema: Sema) {
     private fun Expression.generate() {
         when (this) {
             is Variable -> {
-                println(this)
                 generateInstruction(LOAD + variableIds[genVarName(name.lexeme)]!!, name)
             }
 
