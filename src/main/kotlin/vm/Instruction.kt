@@ -26,9 +26,12 @@ data class Instruction(val bytecode: Int, val position: Int) {
     }
 
     fun shouldPause(): Boolean {
-        if (category in listOf(PUSH, ARGS_NUM, LOAD)) {
+        // This might need some finetuning?
+        if (category in listOf(ARGS_NUM, STORE)) {
             return false
         }
+
+        // compiledFromSource is used because (I think) GoalInstructions (compiledFromSource=0) should NeverPause
 
         return when (bytecode) {
             RETURN -> compiledFromSource
