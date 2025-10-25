@@ -82,9 +82,6 @@ class Sema(val parser: Parser) {
     }
 
     private fun findMissingReturns(block: Block): Boolean {
-        var returnFound = false;
-        var returnInAllBranches = false;
-
         for (statement in block.statements) {
             when (statement) {
                 is Block -> {
@@ -98,12 +95,7 @@ class Sema(val parser: Parser) {
                 }
 
                 is Repeat -> {
-                    // if is not zero and constant and includes return then return true
-//                    if (statement.)
-
-//                    if (findMissingReturns(statement.body)) {
-//                        statement.body.closingBrace.error("Returns inside repeat blocks are currently not allowed")
-//                    }
+                    // TODO: if is not zero and constant and includes return then return true
                 }
 
                 is Return -> {
@@ -111,14 +103,14 @@ class Sema(val parser: Parser) {
                 }
 
                 is While -> {
-//                    return findMissingReturns(statement.body)
+                    // TODO: maybe for trivial cases, return true
                 }
 
                 else -> continue
             }
         }
 
-        return returnFound
+        return false
     }
 
     operator fun invoke(program: Program): Program {

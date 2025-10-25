@@ -529,6 +529,7 @@ class ParserNegativeTest {
         """
         )
 
+        // TODO: change when this is allowed
         assertDiagnostic(
             "missing", """
             num foo() {

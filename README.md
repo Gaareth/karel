@@ -1,6 +1,10 @@
 # Karel Enhanced :^)
 Adds support for Expressions, Variables, Function arguments and return values
 
+Supports type checking, and two types:
+- num: for integers
+- bool: for boolean values
+
 ## Demon
 Here is an example of the computedFibonacci exercise. Written in a convoluted and very inefficent way, but fitting to demonstrate functions and their variables.
 <img width="722" height="976" alt="karel code solving computedFibonacci" src="https://github.com/user-attachments/assets/93aa7425-6a2b-477c-b439-e63dfc39169f" />
@@ -13,6 +17,7 @@ This is just a fun experiment, so this will probably not be updated and lag behi
 
 - no floating point numbers
 - cant use functions as expressions before declaring them 
+  - TODO: first parse all function declarations/headers to get their type
 - bugs?
 - Old [freditor](https://github.com/fredoverflow/karel) commit: 57c5da8e31411e566bd1ddae75ca9d29b9e44754, Nov 3, 2022
 
