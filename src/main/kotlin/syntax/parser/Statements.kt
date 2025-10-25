@@ -82,7 +82,6 @@ fun Parser.statement(): Statement = when (current) {
 
             Assign(id, value).semicolon()
         } else {
-            // TODO: check for arguments correct type
             ExpressionStmt(sema(Call(id, parenthesized { listArgs(::expression) }).semicolon()))
         }
     }
@@ -99,30 +98,45 @@ fun Parser.statement(): Statement = when (current) {
     }
 
     RETURN -> {
-        Return(
-            accept(),
-            expression()
+        val returnToken = accept() // accept return
+
+        if (current == SEMICOLON) {
+            accept() // accept semicolon
+            Return(
+                returnToken, null
+            )
+        } else {
+            val returnExpr = expression()
                 .assertType(
                     this,
                     currentFunctionReturnType!!, // should never be null, as command is on of the first rules
                     msg = "Wrong return type. Expected %s to be a %s. Is: %s"
                 ).semicolon()
-        )
+
+            Return(
+                returnToken,
+                returnExpr
+            )
+        }
     }
 
     REPEAT -> Repeat(accept(), parenthesized(::repeatExpression).assertOperandsType(this, token, Type.Number), block())
 
     WHILE -> While(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block())
 
-    IF -> IfThenElse(accept(), parenthesized(::condition).assertOperandsType(this, token, Type.Bool), block(), optional(ELSE) {
-        when (current) {
-            OPENING_BRACE -> block()
+    IF -> IfThenElse(
+        accept(),
+        parenthesized(::condition).assertOperandsType(this, token, Type.Bool),
+        block(),
+        optional(ELSE) {
+            when (current) {
+                OPENING_BRACE -> block()
 
-            IF -> statement()
+                IF -> statement()
 
-            else -> token.error("else must be followed by { or if")
-        }
-    })
+                else -> token.error("else must be followed by { or if")
+            }
+        })
 
     VOID -> {
         val void = accept()

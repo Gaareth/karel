@@ -26,12 +26,20 @@ data class Instruction(val bytecode: Int, val position: Int) {
     }
 
     fun shouldPause(): Boolean {
+        if (category in listOf(PUSH, ARGS_NUM, LOAD)) {
+            return false
+        }
+
         return when (bytecode) {
             RETURN -> compiledFromSource
 
             MOVE_FORWARD, TURN_LEFT, TURN_AROUND, TURN_RIGHT, PICK_BEEPER, DROP_BEEPER -> true
 
-            ON_BEEPER, BEEPER_AHEAD, LEFT_IS_CLEAR, FRONT_IS_CLEAR, RIGHT_IS_CLEAR, NOT, AND, OR, XOR -> false
+            ON_BEEPER, BEEPER_AHEAD, LEFT_IS_CLEAR, FRONT_IS_CLEAR, RIGHT_IS_CLEAR,
+            NOT, AND, OR, XOR,
+            ADD, SUB, MUL, DIV,
+            EQ, NEQ, GT, GTE, LT, LTE, NEG -> false
+            POP -> false
 
             else -> compiledFromSource && (category != JUMP)
         }
@@ -77,6 +85,8 @@ data class Instruction(val bytecode: Int, val position: Int) {
             FALSE -> "FALSE"
             TRUE -> "TRUE"
 
+            POP -> "POP"
+
             else -> when (category) {
                 PUSH -> "PUSH %03x".format(target)
 
@@ -118,11 +128,13 @@ const val AND = 0x000d
 const val OR = 0x000e
 const val XOR = 0x000f
 
+const val POP = 0x0010 // just pops the value of the stack and thrashes it
+
 const val NORM = 0x0000
 
 
 // >= 0x1000? -> category
-const val ARGS_NUM = 0x2000 // marks the next pushes as parameter args
+const val ARGS_NUM = 0x2000 // stores the number of function arguments
 
 
 const val PUSH = 0x8000
@@ -138,6 +150,8 @@ const val THEN = 0xd000
 
 const val STORE = 0xe000
 const val LOAD = 0xf000
+
+// -------------------
 
 const val ADD = 0x0f00
 const val SUB = 0x0f01

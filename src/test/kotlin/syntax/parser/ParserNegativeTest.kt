@@ -501,6 +501,14 @@ class ParserNegativeTest {
         }
         """
         )
+
+        assertDiagnostic(
+            "Wrong", """
+        void main() {
+            return true;
+        }
+        """
+        )
     }
 
     // TODO: implement this

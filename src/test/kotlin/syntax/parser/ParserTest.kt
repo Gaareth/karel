@@ -227,7 +227,7 @@ class ParserTest {
 
     @Test
     fun fnReturn() {
-        lexer = Lexer("void isOnBeeper() { moveForward(); } ")
+        lexer = Lexer("void isOnBeeper() { return; } ")
         parser = Parser(lexer)
         parser.command()
 

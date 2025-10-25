@@ -15,6 +15,7 @@ class CodeGenerator(private val sema: Sema) {
     private val program: MutableList<Instruction> = createInstructionBuffer()
     private var variableIds = HashMap<String, Int>()
     private var currentCommandName: String? = null
+    private var insideRepeat = false;
 
     private val pc: Int
         get() = program.size
@@ -128,10 +129,12 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Repeat -> {
+                insideRepeat = true;
                 expr.generate();
                 val back = pc
                 body.generate()
                 generateInstruction(LOOP + back, body.closingBrace)
+                insideRepeat = false;
             }
 
             is Assign -> {
@@ -146,7 +149,12 @@ class CodeGenerator(private val sema: Sema) {
             }
 
             is Return -> {
-                expr.generate()
+                // inside a repeat there is always the loop counter on the stack.
+                // This value should not be confused with the return value, and is therefore removed from the stack
+                if (insideRepeat) {
+                    generateInstruction(POP, ret)
+                }
+                expr?.generate()
                 generateInstruction(RETURN, ret)
             }
 

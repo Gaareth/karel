@@ -156,10 +156,6 @@ class VirtualMachine(
         // i think this makes sure that the ReturnAddress is always at the bottom of the stack
 
         val arguments = mutableListOf<StackValue>()
-        var c = 1;
-
-        // ARGS_START and ARGS_END are necessary to know how many args, there are. However, another opcode might be simpler
-        // E.g. ARGS_SIZE + number. SO i can easier get the number of args here
 
         //if command has args
         if (program[pc - 1].category == ARGS_NUM) {
@@ -195,6 +191,7 @@ class VirtualMachine(
             returnAddress = returnValue
         } else {
 //            returnAddress = (pop() as ReturnAddress) // remove return address
+
             // keep popping until return address is reached. This is for necessary for returns inside repeat blocks
             do {
                 stackValue = pop()
@@ -278,6 +275,10 @@ class VirtualMachine(
 
             NEG -> {
                 push((pop() as Num) * -1)
+            }
+
+            POP -> {
+                pop()
             }
 
             else -> throw IllegalBytecode(bytecode)

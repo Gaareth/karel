@@ -32,7 +32,7 @@ sealed class Statement : Node()
 data class ExpressionStmt(val expr: Expression) : Statement()
 
 
-data class Return(val ret: Token, val expr: Expression) : Statement()
+data class Return(val ret: Token, val expr: Expression?) : Statement()
 
 data class Call(val target: Token, val args: List<Expression>) : Expression()
 data class Repeat(val repeat: Token, val expr: Expression, val body: Block) : Statement()
