@@ -113,7 +113,7 @@ class VirtualMachine(
                 THEN -> pc = if (pop() === Bool.TRUE) target else pc + 1
 
                 ARGS_NUM -> {
-                     ++pc
+                    ++pc
                 } // noop
 
                 else -> throw IllegalBytecode(bytecode)
@@ -189,11 +189,19 @@ class VirtualMachine(
         val returnAddress: ReturnAddress
         val returnValue = pop()
 
+        var stackValue: StackValue;
+
         if (returnValue is ReturnAddress) {
             returnAddress = returnValue
         } else {
-            returnAddress = (pop() as ReturnAddress)
-            push(returnValue)
+//            returnAddress = (pop() as ReturnAddress) // remove return address
+            // keep popping until return address is reached. This is for necessary for returns inside repeat blocks
+            do {
+                stackValue = pop()
+            } while (stackValue !is ReturnAddress)
+            returnAddress = stackValue;
+
+            push(returnValue) // push return value back on the stack
         }
 
         pc = returnAddress.value

@@ -504,32 +504,81 @@ class ParserNegativeTest {
     }
 
     // TODO: implement this
-//    @Test
-//    fun missingReturnType() {
-//        assertDiagnostic(
-//            "missing", """
-//            void main() {
-//                foo();
-//            }
-//
-//            bool foo() {
-//                moveForward();
-//            }
-//        """
-//        )
-//
-//        assertDiagnostic(
-//            "missing", """
-//             void main() {
-//                foo();
-//            }
-//
-//            num foo() {
-//                moveForward();
-//            }
-//        """
-//        )
-//    }
+    @Test
+    fun missingReturnType() {
+        assertDiagnostic(
+            "missing", """
+            bool foo() {
+                moveForward();
+            }
+        """
+        )
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                moveForward();
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                repeat(2) {
+                    return 1;
+                }
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                while(true) {
+                    return 1;
+                }
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                if (true) {
+                    return 1;
+                }
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                if (true) {
+                    
+                } else {
+                    return 0;
+                }
+            }
+        """
+        )
+
+        assertDiagnostic(
+            "missing", """
+            num foo() {
+                if (true) {
+                    if (true) {
+                        return 1;
+                    } else {
+                    
+                    }
+                } else {
+                    return 0;
+                }
+            }
+        """
+        )
+    }
 
     @Test
     fun noVoidReturn() {
