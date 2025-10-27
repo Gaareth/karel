@@ -28,3 +28,73 @@ Just download karel.jar
 See DEVELOP.md
 
 **but use commit `57c5da8e31411e566bd1ddae75ca9d29b9e44754`**
+
+
+
+## Example
+```karel
+
+void increment() {
+    while (onBeeper()) {
+        pickBeeper();
+        moveForward();
+    }
+    dropBeeper();
+}
+
+void gotoWall() {
+    while (frontIsClear()) {
+        moveForward();
+    }
+}
+
+void fibonize() {
+    increment();
+    turnAround();
+    gotoWall();
+    turnAround();
+}
+
+num fib(n: num) {
+    let a = 0;
+    let b = 1;
+    repeat (n) {
+        let temp = a + b;
+        a = b;
+        b = temp;
+    }
+    
+    return b;
+}
+
+num add(a: num, b: num) {
+    return a + b;
+}
+
+void computeFibonacci() 
+{ 
+    let n = add(4,4);
+    // skip the first two and start and fib = 3
+    let i = 3;
+    moveForward();
+    moveForward();
+    
+    repeat (n) {
+        let fib_value = fib(i);
+        
+        let c = 0;
+        turnRight();
+        while (c != fib_value) {
+            fibonize();
+            c = c + 1;
+        }
+        turnLeft();
+        i = i + 1;
+        if (frontIsClear()) {
+            moveForward();
+        }
+    }
+}
+
+
+```
